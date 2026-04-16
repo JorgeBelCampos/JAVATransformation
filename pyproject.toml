@@ -1,0 +1,26 @@
+[project]
+name = "java-migrator-agent"
+version = "0.1.0"
+description = "A CLI agent for scanning Java projects and generating migration reports."
+authors = [{name = "Your Name", email = "you@example.com"}]
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+keywords = ["java", "migration", "cli", "scanner", "report"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = ["typer>=0.9.0"]
+
+[project.scripts]
+javamigrator = "javamigrator.main:app"
+
+[build-system]
+requires = ["hatchling>=1.16"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/javamigrator"]
