@@ -1,0 +1,1807 @@
+{
+  "project": {
+    "path": "C:\\Users\\garet\\Desktop\\clienteafirma-master",
+    "build_tool": "maven",
+    "detected_java_version": "1.7",
+    "target_java_version": 17
+  },
+  "compatibility_summary": [
+    "Upgrade required: Java 7 → 17",
+    "JAXB and JAX-WS modules were removed from JDK after Java 11",
+    "Strong encapsulation may break reflection-based code"
+  ],
+  "executive_summary": {
+    "migration_complexity": "HIGH",
+    "total_code_findings": 177,
+    "affected_files": 52,
+    "categories": [
+      {
+        "category": "General javax Review",
+        "severity": "MEDIUM",
+        "count": 129,
+        "affected_files": 39,
+        "recommendation": "Review whether these javax APIs belong to Java SE, legacy Java EE, or external libraries before planning migration changes."
+      },
+      {
+        "category": "Jakarta Servlet Migration",
+        "severity": "HIGH",
+        "count": 46,
+        "affected_files": 12,
+        "recommendation": "If the target runtime is Tomcat 10+ or Jakarta EE, plan a javax.servlet -> jakarta.servlet migration. If staying on Tomcat 9 or equivalent, verify whether keeping javax.servlet is acceptable."
+      },
+      {
+        "category": "Internal JDK APIs",
+        "severity": "HIGH",
+        "count": 2,
+        "affected_files": 1,
+        "recommendation": "Replace internal JDK API usage with supported public alternatives as these are high-risk on newer Java versions."
+      }
+    ],
+    "top_affected_files": [
+      {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+        "count": 15
+      },
+      {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+        "count": 14
+      },
+      {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+        "count": 12
+      },
+      {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
+        "count": 9
+      },
+      {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\HelpUtils.java",
+        "count": 8
+      },
+      {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+        "count": 5
+      },
+      {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+        "count": 5
+      },
+      {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+        "count": 5
+      },
+      {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlBuilder.java",
+        "count": 5
+      },
+      {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-retriever\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\RetrieveService.java",
+        "count": 4
+      }
+    ]
+  },
+  "migration_strategy": {
+    "java_upgrade_required": true,
+    "jakarta_migration": "CONDITIONAL",
+    "xml_impact": "HIGH",
+    "internal_api_risk": "HIGH",
+    "estimated_effort": "HIGH",
+    "suggested_plan": [
+      "Upgrade the build configuration and runtime baseline to the target Java version.",
+      "Review XML-related APIs and add explicit dependencies where JDK-bundled components were removed.",
+      "Evaluate the target servlet container and decide whether javax.servlet must be migrated to jakarta.servlet.",
+      "Replace internal JDK API usages with supported public alternatives before final upgrade validation.",
+      "Run compilation, tests, and smoke validation on the upgraded target runtime."
+    ]
+  },
+  "architecture_insights": [
+    "Project uses javax.servlet both in code and dependencies → Jakarta migration likely required for modern runtimes",
+    "Legacy Java version detected with XML-heavy usage → High migration complexity expected",
+    "Very old dependencies detected → Dependency upgrade required before or during migration",
+    "Large Java version jump detected → Incremental upgrade path recommended (8 → 11 → 17)"
+  ],
+  "top_fix_candidates": [
+    {
+      "title": "Plan javax.servlet to jakarta.servlet migration",
+      "category": "servlet_migration",
+      "impact": "VERY_HIGH",
+      "effort": "MEDIUM",
+      "reason": "Servlet APIs appear in code and are a common blocker for modern Jakarta-based runtimes.",
+      "affected_files": 12,
+      "occurrences": 46,
+      "recommendation": "If targeting Tomcat 10+ or Jakarta EE, migrate javax.servlet imports and dependencies to jakarta.servlet."
+    },
+    {
+      "title": "Upgrade legacy servlet dependencies",
+      "category": "dependency_upgrade",
+      "impact": "HIGH",
+      "effort": "LOW",
+      "reason": "Old servlet dependencies may block runtime modernization or container upgrades.",
+      "affected_files": 0,
+      "occurrences": 4,
+      "recommendation": "Review and replace old servlet artifacts such as servlet-api 2.5 / javax.servlet-api 3.x according to target container."
+    },
+    {
+      "title": "Replace internal JDK API usages",
+      "category": "internal_api",
+      "impact": "HIGH",
+      "effort": "LOW",
+      "reason": "Internal or vendor-specific APIs are risky on newer Java versions and can break at runtime.",
+      "affected_files": 1,
+      "occurrences": 2,
+      "recommendation": "Replace com.sun.* / sun.* usages with supported public APIs before final migration validation."
+    },
+    {
+      "title": "Review general javax usage",
+      "category": "general_javax",
+      "impact": "MEDIUM",
+      "effort": "HIGH",
+      "reason": "There is broad javax usage across the codebase, but not all of it requires migration.",
+      "affected_files": 39,
+      "occurrences": 129,
+      "recommendation": "Classify javax usages into Java SE, external libs, and Jakarta migration candidates before planning large-scale code changes."
+    }
+  ],
+  "dependency_findings": [
+    {
+      "severity": "HIGH",
+      "message": "Legacy javax.servlet dependency detected; may require jakarta migration depending on target runtime",
+      "group_id": "javax.servlet",
+      "artifact_id": "javax.servlet-api",
+      "version": "3.0.1"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Legacy javax dependency detected; review whether replacement or explicit dependency management is needed",
+      "group_id": "javax.servlet",
+      "artifact_id": "javax.servlet-api",
+      "version": "3.0.1"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Legacy javax.servlet dependency detected; may require jakarta migration depending on target runtime",
+      "group_id": "javax.servlet",
+      "artifact_id": "servlet-api",
+      "version": "2.5"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Legacy javax dependency detected; review whether replacement or explicit dependency management is needed",
+      "group_id": "javax.servlet",
+      "artifact_id": "servlet-api",
+      "version": "2.5"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Legacy javax dependency detected; review whether replacement or explicit dependency management is needed",
+      "group_id": "javax.help",
+      "artifact_id": "javahelp",
+      "version": "2.0.05"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Legacy javax dependency detected; review whether replacement or explicit dependency management is needed",
+      "group_id": "javax.json",
+      "artifact_id": "javax.json-api",
+      "version": "1.0"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Very old dependency version detected; compatibility review recommended",
+      "group_id": "javax.json",
+      "artifact_id": "javax.json-api",
+      "version": "1.0"
+    }
+  ],
+  "code_findings": [
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-core-jse\\src\\main\\java\\es\\gob\\afirma\\ui\\core\\jse\\JSEUIManager.java",
+      "line_number": 35,
+      "import_value": "javax.accessibility.Accessible"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-core-jse\\src\\main\\java\\es\\gob\\afirma\\ui\\core\\jse\\errors\\ErrorManagementDialog.java",
+      "line_number": 5,
+      "import_value": "javax.accessibility.Accessible"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\HelpUtils.java",
+      "line_number": 34,
+      "import_value": "javax.help.DefaultHelpBroker"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\HelpUtils.java",
+      "line_number": 35,
+      "import_value": "javax.help.HelpBroker"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\HelpUtils.java",
+      "line_number": 36,
+      "import_value": "javax.help.HelpSet"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\HelpUtils.java",
+      "line_number": 37,
+      "import_value": "javax.help.JHelp"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\HelpUtils.java",
+      "line_number": 38,
+      "import_value": "javax.help.JHelpContentViewer"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\HelpUtils.java",
+      "line_number": 39,
+      "import_value": "javax.help.JHelpNavigator"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\HelpUtils.java",
+      "line_number": 40,
+      "import_value": "javax.help.WindowPresentation"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\HelpUtils.java",
+      "line_number": 41,
+      "import_value": "javax.help.plaf.basic.BasicIndexCellRenderer"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\JAccessibilityFileChooser.java",
+      "line_number": 36,
+      "import_value": "javax.accessibility.AccessibleContext"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\utils\\JAccessibilityFileChooserToSave.java",
+      "line_number": 33,
+      "import_value": "javax.accessibility.AccessibleContext"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\visor\\ui\\EditorFocusManager.java",
+      "line_number": 18,
+      "import_value": "javax.accessibility.AccessibleHyperlink"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-standalone\\afirma-ui-standalone\\src\\main\\java\\es\\gob\\afirma\\ui\\visor\\ui\\EditorFocusManager.java",
+      "line_number": 19,
+      "import_value": "javax.accessibility.AccessibleHypertext"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+      "line_number": 11,
+      "import_value": "javax.json.Json"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+      "line_number": 12,
+      "import_value": "javax.json.JsonArray"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+      "line_number": 13,
+      "import_value": "javax.json.JsonObject"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+      "line_number": 14,
+      "import_value": "javax.json.JsonReader"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+      "line_number": 15,
+      "import_value": "javax.json.JsonString"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
+      "line_number": 46,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
+      "line_number": 47,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
+      "line_number": 48,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
+      "line_number": 49,
+      "import_value": "javax.xml.transform.OutputKeys"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
+      "line_number": 50,
+      "import_value": "javax.xml.transform.Transformer"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
+      "line_number": 51,
+      "import_value": "javax.xml.transform.TransformerException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
+      "line_number": 52,
+      "import_value": "javax.xml.transform.TransformerFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
+      "line_number": 53,
+      "import_value": "javax.xml.transform.dom.DOMSource"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
+      "line_number": 54,
+      "import_value": "javax.xml.transform.stream.StreamResult"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 13,
+      "import_value": "javax.xml.XMLConstants"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 14,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 15,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 16,
+      "import_value": "javax.xml.transform.OutputKeys"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 17,
+      "import_value": "javax.xml.transform.Transformer"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 18,
+      "import_value": "javax.xml.transform.TransformerFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 19,
+      "import_value": "javax.xml.transform.dom.DOMSource"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 20,
+      "import_value": "javax.xml.transform.stream.StreamResult"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 21,
+      "import_value": "javax.xml.transform.stream.StreamSource"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 22,
+      "import_value": "javax.xml.validation.Schema"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 23,
+      "import_value": "javax.xml.validation.SchemaFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\XmlHashDocument.java",
+      "line_number": 24,
+      "import_value": "javax.xml.validation.Validator"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\SimpleAfirma.java",
+      "line_number": 50,
+      "import_value": "javax.smartcardio.CardTerminal"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\EditorFocusManager.java",
+      "line_number": 25,
+      "import_value": "javax.accessibility.AccessibleHyperlink"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\EditorFocusManager.java",
+      "line_number": 26,
+      "import_value": "javax.accessibility.AccessibleHypertext"
+    },
+    {
+      "severity": "HIGH",
+      "message": "com.sun.* internal JDK APIs are risky and may break on newer Java versions",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\restoreconfig\\RestoreConfigWindows.java",
+      "line_number": 33,
+      "import_value": "com.sun.jna.platform.win32.Advapi32Util"
+    },
+    {
+      "severity": "HIGH",
+      "message": "com.sun.* internal JDK APIs are risky and may break on newer Java versions",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\restoreconfig\\RestoreConfigWindows.java",
+      "line_number": 34,
+      "import_value": "com.sun.jna.platform.win32.WinReg"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+      "line_number": 23,
+      "import_value": "javax.servlet.ServletException"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+      "line_number": 24,
+      "import_value": "javax.servlet.ServletInputStream"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+      "line_number": 25,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+      "line_number": 26,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+      "line_number": 27,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-retriever\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\RetrieveService.java",
+      "line_number": 20,
+      "import_value": "javax.servlet.ServletException"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-retriever\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\RetrieveService.java",
+      "line_number": 21,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-retriever\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\RetrieveService.java",
+      "line_number": 22,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-retriever\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\RetrieveService.java",
+      "line_number": 23,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer-core\\src\\main\\java\\es\\gob\\afirma\\triphase\\signer\\processors\\XAdESTriPhasePreProcessor.java",
+      "line_number": 25,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer-core\\src\\main\\java\\es\\gob\\afirma\\triphase\\signer\\processors\\XAdESTriPhaseSignerUtil.java",
+      "line_number": 21,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer-core\\src\\main\\java\\es\\gob\\afirma\\triphase\\signer\\processors\\XAdESTriPhaseSignerUtil.java",
+      "line_number": 22,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer-core\\src\\main\\java\\es\\gob\\afirma\\triphase\\signer\\xades\\XAdESTriPhaseSignerServerSide.java",
+      "line_number": 39,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer-core\\src\\main\\java\\es\\gob\\afirma\\triphase\\signer\\xades\\XAdESTriPhaseSignerServerSide.java",
+      "line_number": 40,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\SignatureService.java",
+      "line_number": 39,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\SignatureService.java",
+      "line_number": 40,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\SignatureService.java",
+      "line_number": 41,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\VersionService.java",
+      "line_number": 6,
+      "import_value": "javax.servlet.ServletException"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\VersionService.java",
+      "line_number": 7,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\VersionService.java",
+      "line_number": 8,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\VersionService.java",
+      "line_number": 9,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPostsigner.java",
+      "line_number": 21,
+      "import_value": "javax.servlet.ServletException"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPostsigner.java",
+      "line_number": 22,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPostsigner.java",
+      "line_number": 23,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPostsigner.java",
+      "line_number": 24,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPresigner.java",
+      "line_number": 21,
+      "import_value": "javax.servlet.ServletException"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPresigner.java",
+      "line_number": 22,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPresigner.java",
+      "line_number": 23,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPresigner.java",
+      "line_number": 24,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPostsigner.java",
+      "line_number": 21,
+      "import_value": "javax.servlet.ServletException"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPostsigner.java",
+      "line_number": 22,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPostsigner.java",
+      "line_number": 23,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPostsigner.java",
+      "line_number": 24,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPresigner.java",
+      "line_number": 19,
+      "import_value": "javax.servlet.ServletException"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPresigner.java",
+      "line_number": 20,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPresigner.java",
+      "line_number": 21,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPresigner.java",
+      "line_number": 22,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\RequestParameters.java",
+      "line_number": 17,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\xml\\SignBatch.java",
+      "line_number": 22,
+      "import_value": "javax.xml.parsers.SAXParser"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\xml\\SignBatch.java",
+      "line_number": 23,
+      "import_value": "javax.xml.parsers.SAXParserFactory"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-simple-webstart\\src\\main\\java\\es\\gob\\afirma\\server\\webstart\\AutoFirmaJnlpService.java",
+      "line_number": 16,
+      "import_value": "javax.servlet.ServletException"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-simple-webstart\\src\\main\\java\\es\\gob\\afirma\\server\\webstart\\AutoFirmaJnlpService.java",
+      "line_number": 17,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-simple-webstart\\src\\main\\java\\es\\gob\\afirma\\server\\webstart\\AutoFirmaJnlpService.java",
+      "line_number": 18,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-simple-webstart\\src\\main\\java\\es\\gob\\afirma\\server\\webstart\\AutoFirmaJnlpService.java",
+      "line_number": 19,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-store-testdata\\src\\main\\java\\es\\gob\\afirma\\webtests\\TestStorer.java",
+      "line_number": 8,
+      "import_value": "javax.servlet.annotation.WebServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-store-testdata\\src\\main\\java\\es\\gob\\afirma\\webtests\\TestStorer.java",
+      "line_number": 9,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-store-testdata\\src\\main\\java\\es\\gob\\afirma\\webtests\\TestStorer.java",
+      "line_number": 10,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-store-testdata\\src\\main\\java\\es\\gob\\afirma\\webtests\\TestStorer.java",
+      "line_number": 11,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+      "line_number": 6,
+      "import_value": "javax.servlet.ServletOutputStream"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+      "line_number": 7,
+      "import_value": "javax.servlet.annotation.WebServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+      "line_number": 8,
+      "import_value": "javax.servlet.http.HttpServlet"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+      "line_number": 9,
+      "import_value": "javax.servlet.http.HttpServletRequest"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Likely javax -> jakarta migration candidate",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+      "line_number": 10,
+      "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xmlsignature\\src\\main\\java\\es\\gob\\afirma\\signers\\xmldsig\\AOXMLDSigSigner.java",
+      "line_number": 51,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xmlsignature\\src\\main\\java\\es\\gob\\afirma\\signers\\xmldsig\\AOXMLDSigSigner.java",
+      "line_number": 52,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xmlsignature\\src\\main\\java\\es\\gob\\afirma\\signers\\xmldsig\\AOXMLDSigSigner.java",
+      "line_number": 53,
+      "import_value": "javax.xml.transform.OutputKeys"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xmlsignature\\src\\main\\java\\es\\gob\\afirma\\signers\\xmldsig\\CustomUriDereferencer.java",
+      "line_number": 25,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\AOFacturaESigner.java",
+      "line_number": 20,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\AOXAdESSigner.java",
+      "line_number": 23,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\AOXAdESSigner.java",
+      "line_number": 24,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\XAdESSigner.java",
+      "line_number": 45,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\XAdESTspUtil.java",
+      "line_number": 16,
+      "import_value": "javax.xml.datatype.DatatypeFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\XAdESTspUtil.java",
+      "line_number": 17,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\XAdESTspUtil.java",
+      "line_number": 18,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\XAdESTspUtil.java",
+      "line_number": 19,
+      "import_value": "javax.xml.transform.OutputKeys"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\XAdESUtil.java",
+      "line_number": 36,
+      "import_value": "javax.xml.transform.OutputKeys"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\XAdESUtil.java",
+      "line_number": 37,
+      "import_value": "javax.xml.xpath.XPathConstants"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\XAdESUtil.java",
+      "line_number": 38,
+      "import_value": "javax.xml.xpath.XPathExpressionException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xades\\src\\main\\java\\es\\gob\\afirma\\signers\\xades\\XAdESUtil.java",
+      "line_number": 39,
+      "import_value": "javax.xml.xpath.XPathFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\test\\java\\es\\gob\\afirma\\test\\pades\\TestMetadata.java",
+      "line_number": 18,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\main\\java\\es\\gob\\afirma\\signers\\pades\\PdfSignResult.java",
+      "line_number": 19,
+      "import_value": "javax.xml.datatype.DatatypeFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\main\\java\\es\\gob\\afirma\\signers\\pades\\PdfSignResult.java",
+      "line_number": 20,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\main\\java\\es\\gob\\afirma\\signers\\pades\\XmpHelper.java",
+      "line_number": 27,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\main\\java\\es\\gob\\afirma\\signers\\pades\\XmpHelper.java",
+      "line_number": 28,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\main\\java\\es\\gob\\afirma\\signers\\pades\\XmpHelper.java",
+      "line_number": 29,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\ContentTypeManager.java",
+      "line_number": 18,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\ContentTypeManager.java",
+      "line_number": 19,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\ContentTypeManager.java",
+      "line_number": 20,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLPackageObjectHelper.java",
+      "line_number": 38,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLUtil.java",
+      "line_number": 21,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLXAdESSigner.java",
+      "line_number": 34,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 25,
+      "import_value": "javax.xml.XMLConstants"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 26,
+      "import_value": "javax.xml.namespace.NamespaceContext"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 27,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 28,
+      "import_value": "javax.xml.transform.OutputKeys"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 29,
+      "import_value": "javax.xml.transform.Result"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 30,
+      "import_value": "javax.xml.transform.Source"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 31,
+      "import_value": "javax.xml.transform.Transformer"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 32,
+      "import_value": "javax.xml.transform.TransformerException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 33,
+      "import_value": "javax.xml.transform.dom.DOMSource"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 34,
+      "import_value": "javax.xml.transform.stream.StreamResult"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 35,
+      "import_value": "javax.xml.xpath.XPath"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 36,
+      "import_value": "javax.xml.xpath.XPathConstants"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 37,
+      "import_value": "javax.xml.xpath.XPathExpression"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 38,
+      "import_value": "javax.xml.xpath.XPathExpressionException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\OOXMLZipHelper.java",
+      "line_number": 39,
+      "import_value": "javax.xml.xpath.XPathFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\RelationshipsParser.java",
+      "line_number": 17,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 55,
+      "import_value": "javax.xml.XMLConstants"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 64,
+      "import_value": "javax.xml.namespace.NamespaceContext"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 65,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 66,
+      "import_value": "javax.xml.transform.OutputKeys"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 67,
+      "import_value": "javax.xml.transform.Result"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 68,
+      "import_value": "javax.xml.transform.Source"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 69,
+      "import_value": "javax.xml.transform.Transformer"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 70,
+      "import_value": "javax.xml.transform.TransformerException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 71,
+      "import_value": "javax.xml.transform.dom.DOMSource"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 72,
+      "import_value": "javax.xml.transform.stream.StreamResult"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 73,
+      "import_value": "javax.xml.xpath.XPath"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 74,
+      "import_value": "javax.xml.xpath.XPathConstants"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 75,
+      "import_value": "javax.xml.xpath.XPathExpression"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-ooxml\\src\\main\\java\\es\\gob\\afirma\\signers\\ooxml\\relprovider\\RelationshipTransformService.java",
+      "line_number": 76,
+      "import_value": "javax.xml.xpath.XPathFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-odf\\src\\main\\java\\es\\gob\\afirma\\signers\\odf\\AOODFSigner.java",
+      "line_number": 58,
+      "import_value": "javax.xml.transform.OutputKeys"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-odf\\src\\main\\java\\es\\gob\\afirma\\signers\\odf\\AOODFSigner.java",
+      "line_number": 59,
+      "import_value": "javax.xml.transform.Transformer"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-odf\\src\\main\\java\\es\\gob\\afirma\\signers\\odf\\AOODFSigner.java",
+      "line_number": 60,
+      "import_value": "javax.xml.transform.dom.DOMSource"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-odf\\src\\main\\java\\es\\gob\\afirma\\signers\\odf\\AOODFSigner.java",
+      "line_number": 61,
+      "import_value": "javax.xml.transform.stream.StreamResult"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\Utils.java",
+      "line_number": 43,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\Utils.java",
+      "line_number": 44,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\Utils.java",
+      "line_number": 45,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\Utils.java",
+      "line_number": 46,
+      "import_value": "javax.xml.transform.OutputKeys"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\dereference\\CustomUriDereferencer.java",
+      "line_number": 24,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\dereference\\XMLSignatureInput.java",
+      "line_number": 32,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\dereference\\XMLSignatureInput.java",
+      "line_number": 33,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\dereference\\XMLSignatureInput.java",
+      "line_number": 34,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\AOFileUtils.java",
+      "line_number": 33,
+      "import_value": "javax.xml.parsers.SAXParser"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlBuilder.java",
+      "line_number": 6,
+      "import_value": "javax.xml.parsers.DocumentBuilder"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlBuilder.java",
+      "line_number": 7,
+      "import_value": "javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlBuilder.java",
+      "line_number": 8,
+      "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlBuilder.java",
+      "line_number": 9,
+      "import_value": "javax.xml.parsers.SAXParser"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlBuilder.java",
+      "line_number": 10,
+      "import_value": "javax.xml.parsers.SAXParserFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlTransformer.java",
+      "line_number": 6,
+      "import_value": "javax.xml.transform.Transformer"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlTransformer.java",
+      "line_number": 7,
+      "import_value": "javax.xml.transform.TransformerConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlTransformer.java",
+      "line_number": 8,
+      "import_value": "javax.xml.transform.TransformerFactory"
+    }
+  ],
+  "autofix_suggestions": [
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+      "line_number": 23,
+      "original": "javax.servlet.ServletException",
+      "replacement": "jakarta.servlet.ServletException",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+      "line_number": 24,
+      "original": "javax.servlet.ServletInputStream",
+      "replacement": "jakarta.servlet.ServletInputStream",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+      "line_number": 25,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+      "line_number": 26,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+      "line_number": 27,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-retriever\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\RetrieveService.java",
+      "line_number": 20,
+      "original": "javax.servlet.ServletException",
+      "replacement": "jakarta.servlet.ServletException",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-retriever\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\RetrieveService.java",
+      "line_number": 21,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-retriever\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\RetrieveService.java",
+      "line_number": 22,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-retriever\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\RetrieveService.java",
+      "line_number": 23,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\SignatureService.java",
+      "line_number": 39,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\SignatureService.java",
+      "line_number": 40,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\SignatureService.java",
+      "line_number": 41,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\VersionService.java",
+      "line_number": 6,
+      "original": "javax.servlet.ServletException",
+      "replacement": "jakarta.servlet.ServletException",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\VersionService.java",
+      "line_number": 7,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\VersionService.java",
+      "line_number": 8,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\VersionService.java",
+      "line_number": 9,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPostsigner.java",
+      "line_number": 21,
+      "original": "javax.servlet.ServletException",
+      "replacement": "jakarta.servlet.ServletException",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPostsigner.java",
+      "line_number": 22,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPostsigner.java",
+      "line_number": 23,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPostsigner.java",
+      "line_number": 24,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPresigner.java",
+      "line_number": 21,
+      "original": "javax.servlet.ServletException",
+      "replacement": "jakarta.servlet.ServletException",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPresigner.java",
+      "line_number": 22,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPresigner.java",
+      "line_number": 23,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\BatchPresigner.java",
+      "line_number": 24,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPostsigner.java",
+      "line_number": 21,
+      "original": "javax.servlet.ServletException",
+      "replacement": "jakarta.servlet.ServletException",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPostsigner.java",
+      "line_number": 22,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPostsigner.java",
+      "line_number": 23,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPostsigner.java",
+      "line_number": 24,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPresigner.java",
+      "line_number": 19,
+      "original": "javax.servlet.ServletException",
+      "replacement": "jakarta.servlet.ServletException",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPresigner.java",
+      "line_number": 20,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPresigner.java",
+      "line_number": 21,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\JSONBatchPresigner.java",
+      "line_number": 22,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\server\\RequestParameters.java",
+      "line_number": 17,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-simple-webstart\\src\\main\\java\\es\\gob\\afirma\\server\\webstart\\AutoFirmaJnlpService.java",
+      "line_number": 16,
+      "original": "javax.servlet.ServletException",
+      "replacement": "jakarta.servlet.ServletException",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-simple-webstart\\src\\main\\java\\es\\gob\\afirma\\server\\webstart\\AutoFirmaJnlpService.java",
+      "line_number": 17,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-simple-webstart\\src\\main\\java\\es\\gob\\afirma\\server\\webstart\\AutoFirmaJnlpService.java",
+      "line_number": 18,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-simple-webstart\\src\\main\\java\\es\\gob\\afirma\\server\\webstart\\AutoFirmaJnlpService.java",
+      "line_number": 19,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-store-testdata\\src\\main\\java\\es\\gob\\afirma\\webtests\\TestStorer.java",
+      "line_number": 8,
+      "original": "javax.servlet.annotation.WebServlet",
+      "replacement": "jakarta.servlet.annotation.WebServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-store-testdata\\src\\main\\java\\es\\gob\\afirma\\webtests\\TestStorer.java",
+      "line_number": 9,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-store-testdata\\src\\main\\java\\es\\gob\\afirma\\webtests\\TestStorer.java",
+      "line_number": 10,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-store-testdata\\src\\main\\java\\es\\gob\\afirma\\webtests\\TestStorer.java",
+      "line_number": 11,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+      "line_number": 6,
+      "original": "javax.servlet.ServletOutputStream",
+      "replacement": "jakarta.servlet.ServletOutputStream",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+      "line_number": 7,
+      "original": "javax.servlet.annotation.WebServlet",
+      "replacement": "jakarta.servlet.annotation.WebServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+      "line_number": 8,
+      "original": "javax.servlet.http.HttpServlet",
+      "replacement": "jakarta.servlet.http.HttpServlet",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+      "line_number": 9,
+      "original": "javax.servlet.http.HttpServletRequest",
+      "replacement": "jakarta.servlet.http.HttpServletRequest",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    },
+    {
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-miniapplet-report\\src\\main\\java\\es\\gob\\afirma\\miniapplet\\report\\ExtractDataServlet.java",
+      "line_number": 10,
+      "original": "javax.servlet.http.HttpServletResponse",
+      "replacement": "jakarta.servlet.http.HttpServletResponse",
+      "reason": "Servlet API migration candidate for Jakarta-based runtimes",
+      "confidence": "HIGH"
+    }
+  ]
+}

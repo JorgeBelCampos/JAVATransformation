@@ -1,24 +1,17 @@
+import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Union
 
 
 MAVEN_NS = {"m": "http://maven.apache.org/POM/4.0.0"}
+PROPERTY_REF_PATTERN = re.compile(r"^\$\{(.+)\}$")
 
 
 def detect_java_version(project_path: Union[str, Path]) -> str | None:
-    """Detect the Java version from a Maven project's pom.xml.
-
-    Searches for pom.xml in the provided path and parent directories.
-    Extracts Java version from common Maven properties or compiler plugin config.
-
-    Args:
-        project_path: Directory or file path within the Maven project.
-
-    Returns:
-        The detected Java version as a string, or None if not found.
-    """
+    """Detect the Java version from a Maven project's pom.xml."""
     root = Path(project_path)
+
     if root.is_file():
         root = root.parent
 
@@ -34,10 +27,12 @@ def detect_java_version(project_path: Union[str, Path]) -> str | None:
 
 
 def _parse_java_version_from_pom(pom_path: Path) -> str | None:
-    """Parse Java version from a pom.xml file."""
+    """Parse Java version from a pom.xml file, resolving simple property references."""
     try:
         tree = ET.parse(pom_path)
         root = tree.getroot()
+
+        properties_map = _extract_properties(root)
 
         # 1) Common properties
         properties = root.find("m:properties", MAVEN_NS)
@@ -50,7 +45,7 @@ def _parse_java_version_from_pom(pom_path: Path) -> str | None:
             ):
                 elem = properties.find(f"m:{key}", MAVEN_NS)
                 if elem is not None and elem.text:
-                    return elem.text.strip()
+                    return _resolve_property_reference(elem.text.strip(), properties_map)
 
         # 2) maven-compiler-plugin configuration
         plugins = root.findall(".//m:plugin", MAVEN_NS)
@@ -66,9 +61,35 @@ def _parse_java_version_from_pom(pom_path: Path) -> str | None:
             for tag in ("release", "source", "target"):
                 elem = configuration.find(f"m:{tag}", MAVEN_NS)
                 if elem is not None and elem.text:
-                    return elem.text.strip()
+                    return _resolve_property_reference(elem.text.strip(), properties_map)
 
     except (ET.ParseError, OSError):
         return None
 
     return None
+
+
+def _extract_properties(root: ET.Element) -> dict[str, str]:
+    """Extract Maven properties into a dictionary."""
+    properties_map: dict[str, str] = {}
+
+    properties = root.find("m:properties", MAVEN_NS)
+    if properties is None:
+        return properties_map
+
+    for child in properties:
+        tag_name = child.tag.split("}", 1)[-1]
+        if child.text:
+            properties_map[tag_name] = child.text.strip()
+
+    return properties_map
+
+
+def _resolve_property_reference(value: str, properties_map: dict[str, str]) -> str:
+    """Resolve simple Maven property references like ${jdk.version}."""
+    match = PROPERTY_REF_PATTERN.match(value)
+    if not match:
+        return value
+
+    property_name = match.group(1)
+    return properties_map.get(property_name, value)
