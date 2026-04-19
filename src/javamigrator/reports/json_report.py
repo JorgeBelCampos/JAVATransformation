@@ -4,11 +4,14 @@ import json
 from pathlib import Path
 
 from javamigrator.analysis.autofix import AutoFixSuggestion
+from javamigrator.analysis.build_error_analysis import BuildErrorFinding
+from javamigrator.analysis.build_validation import BuildValidationResult
 from javamigrator.analysis.code_analysis import ImportFinding
 from javamigrator.analysis.dependency_analysis import DependencyFinding
 from javamigrator.analysis.fix_prioritization import FixCandidate
 from javamigrator.analysis.migration_strategy import MigrationStrategy
 from javamigrator.analysis.summary import ExecutiveSummary
+from javamigrator.analysis.verification import VerificationSummary
 
 
 def generate_json_report(
@@ -24,6 +27,9 @@ def generate_json_report(
     architecture_insights: list[str],
     top_fix_candidates: list[FixCandidate],
     autofix_suggestions: list[AutoFixSuggestion],
+    verification_summary: VerificationSummary | None = None,
+    build_validation: BuildValidationResult | None = None,
+    build_error_findings: list[BuildErrorFinding] | None = None,
 ) -> dict:
     """Generate a structured JSON report for Java migration analysis."""
     return {
@@ -105,6 +111,45 @@ def generate_json_report(
                 "confidence": suggestion.confidence,
             }
             for suggestion in autofix_suggestions
+        ],
+        "verification_summary": (
+            {
+                "original_code_findings": verification_summary.original_code_findings,
+                "fixed_code_findings": verification_summary.fixed_code_findings,
+                "original_dependency_findings": verification_summary.original_dependency_findings,
+                "fixed_dependency_findings": verification_summary.fixed_dependency_findings,
+                "original_servlet_findings": verification_summary.original_servlet_findings,
+                "fixed_servlet_findings": verification_summary.fixed_servlet_findings,
+                "original_servlet_dependencies": verification_summary.original_servlet_dependencies,
+                "fixed_servlet_dependencies": verification_summary.fixed_servlet_dependencies,
+            }
+            if verification_summary is not None
+            else None
+        ),
+        "build_validation": (
+            {
+                "attempted": build_validation.attempted,
+                "succeeded": build_validation.succeeded,
+                "tool": build_validation.tool,
+                "command": build_validation.command,
+                "return_code": build_validation.return_code,
+                "stdout": build_validation.stdout,
+                "stderr": build_validation.stderr,
+                "working_directory": build_validation.working_directory,
+            }
+            if build_validation is not None
+            else None
+        ),
+        "build_error_findings": [
+            {
+                "severity": finding.severity,
+                "category": finding.category,
+                "message": finding.message,
+                "file_path": finding.file_path,
+                "line_number": finding.line_number,
+                "raw_line": finding.raw_line,
+            }
+            for finding in (build_error_findings or [])
         ],
     }
 

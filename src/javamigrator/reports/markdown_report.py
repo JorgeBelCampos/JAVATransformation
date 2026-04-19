@@ -2,11 +2,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from javamigrator.analysis.build_error_analysis import BuildErrorFinding
+from javamigrator.analysis.build_validation import BuildValidationResult
 from javamigrator.analysis.code_analysis import ImportFinding
 from javamigrator.analysis.dependency_analysis import DependencyFinding
+from javamigrator.analysis.fix_prioritization import FixCandidate
 from javamigrator.analysis.migration_strategy import MigrationStrategy
 from javamigrator.analysis.summary import ExecutiveSummary
-from javamigrator.analysis.fix_prioritization import FixCandidate
+from javamigrator.analysis.verification import VerificationSummary
+
 
 def generate_markdown_report(
     project_path: str,
@@ -19,6 +23,9 @@ def generate_markdown_report(
     executive_summary: ExecutiveSummary,
     migration_strategy: MigrationStrategy,
     top_fix_candidates: list[FixCandidate],
+    verification_summary: VerificationSummary | None = None,
+    build_validation: BuildValidationResult | None = None,
+    build_error_findings: list[BuildErrorFinding] | None = None,
 ) -> str:
     """Generate a Markdown report for Java migration analysis."""
     lines: list[str] = []
@@ -72,20 +79,65 @@ def generate_markdown_report(
     lines.append("## Top Fix Candidates")
     lines.append("")
     if top_fix_candidates:
-        for idx, candidate in enumerate(top_fix_candidates, start=1):
-            lines.append(f"### {idx}. {candidate.title}")
+        for idx, fix in enumerate(top_fix_candidates, start=1):
+            lines.append(f"### {idx}. {fix.title}")
             lines.append("")
-            lines.append(f"- **Category:** {candidate.category}")
-            lines.append(f"- **Impact:** {candidate.impact}")
-            lines.append(f"- **Effort:** {candidate.effort}")
-            lines.append(f"- **Affected files:** {candidate.affected_files}")
-            lines.append(f"- **Occurrences:** {candidate.occurrences}")
-            lines.append(f"- **Reason:** {candidate.reason}")
-            lines.append(f"- **Recommendation:** {candidate.recommendation}")
+            lines.append(f"- **Category:** {fix.category}")
+            lines.append(f"- **Impact:** {fix.impact}")
+            lines.append(f"- **Effort:** {fix.effort}")
+            lines.append(f"- **Affected files:** {fix.affected_files}")
+            lines.append(f"- **Occurrences:** {fix.occurrences}")
+            lines.append(f"- **Reason:** {fix.reason}")
+            lines.append(f"- **Recommendation:** {fix.recommendation}")
             lines.append("")
     else:
-        lines.append("No prioritized fix candidates generated.")
+        lines.append("No prioritized fixes generated.")
         lines.append("")
+
+    if verification_summary is not None:
+        lines.append("## Verification Summary")
+        lines.append("")
+        lines.append(
+            f"- **Code findings:** {verification_summary.original_code_findings} -> {verification_summary.fixed_code_findings}"
+        )
+        lines.append(
+            f"- **Dependency findings:** {verification_summary.original_dependency_findings} -> {verification_summary.fixed_dependency_findings}"
+        )
+        lines.append(
+            f"- **Servlet code findings:** {verification_summary.original_servlet_findings} -> {verification_summary.fixed_servlet_findings}"
+        )
+        lines.append(
+            f"- **Servlet dependency findings:** {verification_summary.original_servlet_dependencies} -> {verification_summary.fixed_servlet_dependencies}"
+        )
+        lines.append("")
+
+    if build_validation is not None:
+        lines.append("## Build Validation")
+        lines.append("")
+        lines.append(f"- **Attempted:** {'YES' if build_validation.attempted else 'NO'}")
+        lines.append(f"- **Succeeded:** {'YES' if build_validation.succeeded else 'NO'}")
+        lines.append(f"- **Tool:** {build_validation.tool}")
+        lines.append(f"- **Working directory:** `{build_validation.working_directory}`")
+        if build_validation.command:
+            lines.append(f"- **Command:** `{' '.join(build_validation.command)}`")
+        if build_validation.return_code is not None:
+            lines.append(f"- **Return code:** {build_validation.return_code}")
+        lines.append("")
+
+    if build_error_findings:
+        lines.append("## Build Error Findings")
+        lines.append("")
+        for finding in build_error_findings[:50]:
+            lines.append(f"### [{finding.severity}] {finding.category}")
+            lines.append("")
+            lines.append(f"- **Message:** {finding.message}")
+            if finding.file_path:
+                lines.append(f"- **File:** `{finding.file_path}`")
+            if finding.line_number is not None:
+                lines.append(f"- **Line:** {finding.line_number}")
+            if finding.raw_line:
+                lines.append(f"- **Raw:** `{finding.raw_line}`")
+            lines.append("")
 
     lines.append("## Project")
     lines.append("")
