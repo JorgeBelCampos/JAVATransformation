@@ -43,6 +43,9 @@ def _fix_single_pom(pom_path: Path) -> list[str]:
     if _fix_legacy_servlet_dependencies(root, pom_path, changes):
         modified = True
 
+    if _fix_removed_jdk_api_dependencies(root, pom_path, changes):
+        modified = True
+
     if _fix_compiler_properties(root, pom_path, changes):
         modified = True
 
@@ -95,6 +98,61 @@ def _fix_legacy_servlet_dependencies(
             new = "jakarta.servlet:jakarta.servlet-api:5.0.0"
             changes.append(f"{pom_path}: {old} -> {new}")
             modified = True
+
+    return modified
+
+
+def _fix_removed_jdk_api_dependencies(
+    root: ET.Element,
+    pom_path: Path,
+    changes: list[str],
+) -> bool:
+    dependency_elements = root.findall(".//m:dependencies/m:dependency", MAVEN_NS)
+    modified = False
+
+    for dep in dependency_elements:
+        group_id_elem = dep.find("m:groupId", MAVEN_NS)
+        artifact_id_elem = dep.find("m:artifactId", MAVEN_NS)
+        version_elem = dep.find("m:version", MAVEN_NS)
+
+        if group_id_elem is None or artifact_id_elem is None:
+            continue
+
+        group_id = (group_id_elem.text or "").strip()
+        artifact_id = (artifact_id_elem.text or "").strip()
+        old = (
+            f"{group_id}:{artifact_id}:"
+            f"{version_elem.text.strip() if version_elem is not None and version_elem.text else 'no-version'}"
+        )
+
+        replacement: tuple[str, str, str] | None = None
+
+        if group_id == "javax.xml.bind" and artifact_id == "jaxb-api":
+            replacement = ("javax.xml.bind", "jaxb-api", "2.3.1")
+        elif group_id == "javax.xml.ws" and artifact_id == "jaxws-api":
+            replacement = ("javax.xml.ws", "jaxws-api", "2.3.1")
+        elif group_id == "javax.activation" and artifact_id == "activation":
+            replacement = ("com.sun.activation", "javax.activation", "1.2.0")
+        elif group_id == "com.sun.activation" and artifact_id == "javax.activation":
+            replacement = ("com.sun.activation", "javax.activation", "1.2.0")
+        elif group_id == "javax.json" and artifact_id == "javax.json-api":
+            replacement = ("javax.json", "javax.json-api", "1.1.4")
+
+        if replacement is None:
+            continue
+
+        new_group_id, new_artifact_id, new_version = replacement
+        if group_id == new_group_id and artifact_id == new_artifact_id and version_elem is not None and (version_elem.text or "").strip() == new_version:
+            continue
+
+        group_id_elem.text = new_group_id
+        artifact_id_elem.text = new_artifact_id
+        if version_elem is None:
+            version_elem = ET.SubElement(dep, _tag("version"))
+        version_elem.text = new_version
+
+        changes.append(f"{pom_path}: {old} -> {new_group_id}:{new_artifact_id}:{new_version}")
+        modified = True
 
     return modified
 

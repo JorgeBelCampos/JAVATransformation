@@ -12,15 +12,22 @@
   ],
   "executive_summary": {
     "migration_complexity": "HIGH",
-    "total_code_findings": 177,
-    "affected_files": 52,
+    "total_code_findings": 242,
+    "affected_files": 86,
     "categories": [
       {
         "category": "General javax Review",
         "severity": "MEDIUM",
-        "count": 129,
-        "affected_files": 39,
+        "count": 124,
+        "affected_files": 38,
         "recommendation": "Review whether these javax APIs belong to Java SE, legacy Java EE, or external libraries before planning migration changes."
+      },
+      {
+        "category": "Reflection Encapsulation Risks",
+        "severity": "MEDIUM",
+        "count": 60,
+        "affected_files": 39,
+        "recommendation": "Review reflective access patterns because Java 17+ strong encapsulation can require refactoring or --add-opens."
       },
       {
         "category": "Jakarta Servlet Migration",
@@ -28,6 +35,13 @@
         "count": 46,
         "affected_files": 12,
         "recommendation": "If the target runtime is Tomcat 10+ or Jakarta EE, plan a javax.servlet -> jakarta.servlet migration. If staying on Tomcat 9 or equivalent, verify whether keeping javax.servlet is acceptable."
+      },
+      {
+        "category": "Legacy JSON API",
+        "severity": "MEDIUM",
+        "count": 10,
+        "affected_files": 1,
+        "recommendation": "Add explicit javax.json dependency first, then evaluate whether migration to jakarta.json is desirable."
       },
       {
         "category": "Internal JDK APIs",
@@ -51,6 +65,10 @@
         "count": 12
       },
       {
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+        "count": 10
+      },
+      {
         "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugin-hash\\src\\main\\java\\es\\gob\\afirma\\plugin\\hash\\CheckHashDirDialog.java",
         "count": 9
       },
@@ -59,11 +77,11 @@
         "count": 8
       },
       {
-        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
         "count": 5
       },
       {
-        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-storage\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\StorageService.java",
+        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\SignatureService.java",
         "count": 5
       },
       {
@@ -73,10 +91,6 @@
       {
         "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlBuilder.java",
         "count": 5
-      },
-      {
-        "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-signature-retriever\\src\\main\\java\\es\\gob\\afirma\\signfolder\\server\\proxy\\RetrieveService.java",
-        "count": 4
       }
     ]
   },
@@ -112,6 +126,26 @@
       "recommendation": "If targeting Tomcat 10+ or Jakarta EE, migrate javax.servlet imports and dependencies to jakarta.servlet."
     },
     {
+      "title": "Modernize Maven compiler Java level",
+      "category": "compiler_config",
+      "impact": "VERY_HIGH",
+      "effort": "LOW",
+      "reason": "Old source/target/release values can make builds fail immediately on newer JDKs.",
+      "affected_files": 0,
+      "occurrences": 3,
+      "recommendation": "Raise compiler source/target/release and related properties to at least Java 8 before attempting higher-JDK validation."
+    },
+    {
+      "title": "Review reflection and encapsulation-sensitive code",
+      "category": "reflection_risk",
+      "impact": "HIGH",
+      "effort": "MEDIUM",
+      "reason": "Reflection-heavy code can fail under stronger encapsulation in Java 17+.",
+      "affected_files": 39,
+      "occurrences": 60,
+      "recommendation": "Review reflective access, setAccessible-style flows, and illegal-access warnings before finalizing Java 17+ migration."
+    },
+    {
       "title": "Upgrade legacy servlet dependencies",
       "category": "dependency_upgrade",
       "impact": "HIGH",
@@ -140,6 +174,16 @@
       "affected_files": 39,
       "occurrences": 129,
       "recommendation": "Classify javax usages into Java SE, external libs, and Jakarta migration candidates before planning large-scale code changes."
+    },
+    {
+      "title": "Review legacy javax.json usage",
+      "category": "javax_json_review",
+      "impact": "MEDIUM",
+      "effort": "LOW",
+      "reason": "Old javax.json APIs may need explicit dependency management on modern JDKs.",
+      "affected_files": 1,
+      "occurrences": 5,
+      "recommendation": "Add explicit javax.json dependency first, then evaluate whether jakarta.json migration is desirable."
     }
   ],
   "dependency_findings": [
@@ -180,6 +224,13 @@
     },
     {
       "severity": "MEDIUM",
+      "message": "Legacy javax.json dependency detected; review explicit dependency management or jakarta.json migration",
+      "group_id": "javax.json",
+      "artifact_id": "javax.json-api",
+      "version": "1.0"
+    },
+    {
+      "severity": "MEDIUM",
       "message": "Legacy javax dependency detected; review whether replacement or explicit dependency management is needed",
       "group_id": "javax.json",
       "artifact_id": "javax.json-api",
@@ -191,9 +242,100 @@
       "group_id": "javax.json",
       "artifact_id": "javax.json-api",
       "version": "1.0"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Legacy javax.json dependency detected; review explicit dependency management or jakarta.json migration",
+      "group_id": "org.glassfish",
+      "artifact_id": "javax.json",
+      "version": "1.0.4"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Legacy Maven compiler configuration detected (source=1.7); newer JDKs may fail to compile",
+      "group_id": "org.apache.maven.plugins",
+      "artifact_id": "maven-compiler-plugin",
+      "version": "1.7"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Legacy Maven compiler configuration detected (target=1.7); newer JDKs may fail to compile",
+      "group_id": "org.apache.maven.plugins",
+      "artifact_id": "maven-compiler-plugin",
+      "version": "1.7"
+    },
+    {
+      "severity": "HIGH",
+      "message": "Legacy Java compiler property detected (jdk.version=1.7); newer JDKs may fail to compile",
+      "group_id": "maven-compiler-plugin",
+      "artifact_id": "jdk.version",
+      "version": "1.7"
     }
   ],
   "code_findings": [
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-simple-configurator\\src\\main\\java\\es\\gob\\afirma\\standalone\\configurator\\AutofirmaConfigurator.java",
+      "line_number": 16,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-simple-configurator\\src\\main\\java\\es\\gob\\afirma\\standalone\\configurator\\AutofirmaConfigurator.java",
+      "line_number": 17,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-core-jse-keystores\\src\\main\\java\\es\\gob\\afirma\\ui\\core\\jse\\certificateselection\\CertificateUtils.java",
+      "line_number": 18,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-core-jse\\src\\main\\java\\es\\gob\\afirma\\ui\\core\\jse\\AWTUIManager.java",
+      "line_number": 22,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-core-jse\\src\\main\\java\\es\\gob\\afirma\\ui\\core\\jse\\AWTUIManager.java",
+      "line_number": 23,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-core-jse\\src\\main\\java\\es\\gob\\afirma\\ui\\core\\jse\\AWTUIManager.java",
+      "line_number": 24,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-core-jse\\src\\main\\java\\es\\gob\\afirma\\ui\\core\\jse\\JSEUIManager.java",
+      "line_number": 27,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-core-jse\\src\\main\\java\\es\\gob\\afirma\\ui\\core\\jse\\JSEUIManager.java",
+      "line_number": 28,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-ui-core-jse\\src\\main\\java\\es\\gob\\afirma\\ui\\core\\jse\\JSEUIManager.java",
+      "line_number": 29,
+      "import_value": "java.lang.reflect.Method"
+    },
     {
       "severity": "MEDIUM",
       "message": "javax.* usage detected; review whether migration is required",
@@ -301,7 +443,21 @@
     },
     {
       "severity": "MEDIUM",
+      "message": "Legacy javax.json API detected; explicit dependency or jakarta.json migration may be needed",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+      "line_number": 11,
+      "import_value": "javax.json.Json"
+    },
+    {
+      "severity": "MEDIUM",
       "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+      "line_number": 12,
+      "import_value": "javax.json.JsonArray"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Legacy javax.json API detected; explicit dependency or jakarta.json migration may be needed",
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
       "line_number": 12,
       "import_value": "javax.json.JsonArray"
@@ -315,7 +471,21 @@
     },
     {
       "severity": "MEDIUM",
+      "message": "Legacy javax.json API detected; explicit dependency or jakarta.json migration may be needed",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+      "line_number": 13,
+      "import_value": "javax.json.JsonObject"
+    },
+    {
+      "severity": "MEDIUM",
       "message": "javax.* usage detected; review whether migration is required",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+      "line_number": 14,
+      "import_value": "javax.json.JsonReader"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Legacy javax.json API detected; explicit dependency or jakarta.json migration may be needed",
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
       "line_number": 14,
       "import_value": "javax.json.JsonReader"
@@ -326,6 +496,34 @@
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
       "line_number": 15,
       "import_value": "javax.json.JsonString"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Legacy javax.json API detected; explicit dependency or jakarta.json migration may be needed",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins-manager\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\manager\\PluginInfoLoader.java",
+      "line_number": 15,
+      "import_value": "javax.json.JsonString"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\AfirmaPlugin.java",
+      "line_number": 3,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\UIFactory.java",
+      "line_number": 7,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple-plugins\\src\\main\\java\\es\\gob\\afirma\\standalone\\plugins\\UIFactory.java",
+      "line_number": 8,
+      "import_value": "java.lang.reflect.Method"
     },
     {
       "severity": "MEDIUM",
@@ -476,10 +674,45 @@
     },
     {
       "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\DesktopUtil.java",
+      "line_number": 21,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\SimpleAfirma.java",
+      "line_number": 33,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\SimpleAfirma.java",
+      "line_number": 34,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
       "message": "javax.* usage detected; review whether migration is required",
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\SimpleAfirma.java",
       "line_number": 50,
       "import_value": "javax.smartcardio.CardTerminal"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\protocol\\ProtocolInvocationLauncher.java",
+      "line_number": 14,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\CommonWaitDialog.java",
+      "line_number": 17,
+      "import_value": "java.lang.reflect.Method"
     },
     {
       "severity": "MEDIUM",
@@ -496,15 +729,50 @@
       "import_value": "javax.accessibility.AccessibleHypertext"
     },
     {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\MainMenu.java",
+      "line_number": 17,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\OSXHandler.java",
+      "line_number": 23,
+      "import_value": "java.lang.reflect.InvocationHandler"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\OSXHandler.java",
+      "line_number": 24,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\OSXHandler.java",
+      "line_number": 25,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\OSXHandler.java",
+      "line_number": 26,
+      "import_value": "java.lang.reflect.Proxy"
+    },
+    {
       "severity": "HIGH",
-      "message": "com.sun.* internal JDK APIs are risky and may break on newer Java versions",
+      "message": "Internal JDK APIs are risky and may break on newer Java versions",
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\restoreconfig\\RestoreConfigWindows.java",
       "line_number": 33,
       "import_value": "com.sun.jna.platform.win32.Advapi32Util"
     },
     {
       "severity": "HIGH",
-      "message": "com.sun.* internal JDK APIs are risky and may break on newer Java versions",
+      "message": "Internal JDK APIs are risky and may break on newer Java versions",
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-simple\\src\\main\\java\\es\\gob\\afirma\\standalone\\ui\\restoreconfig\\RestoreConfigWindows.java",
       "line_number": 34,
       "import_value": "com.sun.jna.platform.win32.WinReg"
@@ -608,6 +876,27 @@
       "import_value": "javax.xml.parsers.ParserConfigurationException"
     },
     {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\test\\java\\es\\gob\\afirma\\signers\\batch\\TestSignBatch.java",
+      "line_number": 4,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\SignatureService.java",
+      "line_number": 16,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\SignatureService.java",
+      "line_number": 17,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
       "severity": "HIGH",
       "message": "Likely javax -> jakarta migration candidate",
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\SignatureService.java",
@@ -655,6 +944,20 @@
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\triphase\\server\\VersionService.java",
       "line_number": 9,
       "import_value": "javax.servlet.http.HttpServletResponse"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\json\\DocumentCacheFactory.java",
+      "line_number": 4,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-server-triphase-signer\\src\\main\\java\\es\\gob\\afirma\\signers\\batch\\json\\JSONSignBatch.java",
+      "line_number": 14,
+      "import_value": "java.lang.reflect.Constructor"
     },
     {
       "severity": "HIGH",
@@ -882,6 +1185,62 @@
     },
     {
       "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-keystores-mozilla\\src\\test\\java\\es\\gob\\afirma\\keystores\\mozilla\\SimpleTest.java",
+      "line_number": 5,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-keystores-mozilla\\src\\main\\java\\es\\gob\\afirma\\keystores\\mozilla\\MozillaKeyStoreUtilities.java",
+      "line_number": 22,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-keystores-mozilla\\src\\main\\java\\es\\gob\\afirma\\keystores\\mozilla\\MozillaKeyStoreUtilities.java",
+      "line_number": 23,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-keystores-jmulticard-ui\\src\\main\\java\\es\\gob\\afirma\\keystores\\jmulticard\\ui\\DnieCacheCallbackHandler.java",
+      "line_number": 3,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-keystores-jmulticard-ui\\src\\main\\java\\es\\gob\\afirma\\keystores\\jmulticard\\ui\\DnieCacheCallbackHandler.java",
+      "line_number": 4,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-keystores-jmulticard-ui\\src\\main\\java\\es\\gob\\afirma\\keystores\\jmulticard\\ui\\DnieCallbackHandler.java",
+      "line_number": 3,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-keystores-jmulticard-ui\\src\\main\\java\\es\\gob\\afirma\\keystores\\jmulticard\\ui\\DnieCallbackHandler.java",
+      "line_number": 4,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-keystores-capiaddressbook\\src\\main\\java\\sun\\security\\mscapi\\KeyStoreAddressBook.java",
+      "line_number": 31,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
       "message": "javax.* usage detected; review whether migration is required",
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xmlsignature\\src\\main\\java\\es\\gob\\afirma\\signers\\xmldsig\\AOXMLDSigSigner.java",
       "line_number": 51,
@@ -900,6 +1259,27 @@
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xmlsignature\\src\\main\\java\\es\\gob\\afirma\\signers\\xmldsig\\AOXMLDSigSigner.java",
       "line_number": 53,
       "import_value": "javax.xml.transform.OutputKeys"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xmlsignature\\src\\main\\java\\es\\gob\\afirma\\signers\\xmldsig\\CustomUriDereferencer.java",
+      "line_number": 14,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xmlsignature\\src\\main\\java\\es\\gob\\afirma\\signers\\xmldsig\\CustomUriDereferencer.java",
+      "line_number": 15,
+      "import_value": "java.lang.reflect.Field"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-xmlsignature\\src\\main\\java\\es\\gob\\afirma\\signers\\xmldsig\\CustomUriDereferencer.java",
+      "line_number": 16,
+      "import_value": "java.lang.reflect.Method"
     },
     {
       "severity": "MEDIUM",
@@ -1001,6 +1381,13 @@
     },
     {
       "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\main\\java\\es\\gob\\afirma\\signers\\pades\\PdfPreProcessor.java",
+      "line_number": 14,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
       "message": "javax.* usage detected; review whether migration is required",
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\main\\java\\es\\gob\\afirma\\signers\\pades\\PdfSignResult.java",
       "line_number": 19,
@@ -1012,6 +1399,20 @@
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\main\\java\\es\\gob\\afirma\\signers\\pades\\PdfSignResult.java",
       "line_number": 20,
       "import_value": "javax.xml.parsers.ParserConfigurationException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\main\\java\\es\\gob\\afirma\\signers\\pades\\PdfTimestamper.java",
+      "line_number": 15,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-pdf\\src\\main\\java\\es\\gob\\afirma\\signers\\pades\\PdfTimestamper.java",
+      "line_number": 16,
+      "import_value": "java.lang.reflect.Method"
     },
     {
       "severity": "MEDIUM",
@@ -1344,6 +1745,27 @@
     },
     {
       "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\XmlDSigProviderHelper.java",
+      "line_number": 3,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\dereference\\CustomUriDereferencer.java",
+      "line_number": 14,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\dereference\\CustomUriDereferencer.java",
+      "line_number": 15,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
       "message": "javax.* usage detected; review whether migration is required",
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-xml\\src\\main\\java\\es\\gob\\afirma\\signers\\xml\\dereference\\CustomUriDereferencer.java",
       "line_number": 24,
@@ -1372,10 +1794,108 @@
     },
     {
       "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-core-pkcs7-tsp\\src\\main\\java\\es\\gob\\afirma\\signers\\tsp\\pkcs7\\CMSTimestamper.java",
+      "line_number": 18,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-cms-enveloper\\src\\test\\java\\es\\gob\\afirma\\envelopers\\cms\\TestTemd.java",
+      "line_number": 5,
+      "import_value": "java.lang.reflect.Field"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-cades\\src\\test\\java\\es\\gob\\afirma\\test\\cades\\MiniTestDNI.java",
+      "line_number": 14,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-cades\\src\\main\\java\\es\\gob\\afirma\\signers\\cades\\AOCAdESSigner.java",
+      "line_number": 13,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-cades\\src\\main\\java\\es\\gob\\afirma\\signers\\cades\\AOCAdESSigner.java",
+      "line_number": 14,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-cades\\src\\main\\java\\es\\gob\\afirma\\signers\\cades\\AOCAdESSigner.java",
+      "line_number": 15,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-crypto-cades\\src\\main\\java\\es\\gob\\afirma\\signers\\cades\\asic\\AOCAdESASiCSSigner.java",
+      "line_number": 13,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core-keystores\\src\\test\\java\\es\\gob\\afirma\\test\\keystores\\TestDnie.java",
+      "line_number": 15,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core-keystores\\src\\test\\java\\es\\gob\\afirma\\test\\keystores\\TestPkcs11.java",
+      "line_number": 5,
+      "import_value": "java.lang.reflect.Constructor"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core-keystores\\src\\main\\java\\es\\gob\\afirma\\keystores\\AOKeyStoreManagerHelperFullJava.java",
+      "line_number": 13,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core-keystores\\src\\main\\java\\es\\gob\\afirma\\keystores\\AOKeyStoreManagerHelperPkcs11.java",
+      "line_number": 18,
+      "import_value": "java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core-keystores\\src\\main\\java\\es\\gob\\afirma\\keystores\\AOKeyStoreManagerHelperPkcs11.java",
+      "line_number": 19,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core-keystores\\src\\main\\java\\es\\gob\\afirma\\keystores\\CAPIKeyStoreManager.java",
+      "line_number": 13,
+      "import_value": "java.lang.reflect.Field"
+    },
+    {
+      "severity": "MEDIUM",
       "message": "javax.* usage detected; review whether migration is required",
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\AOFileUtils.java",
       "line_number": 33,
       "import_value": "javax.xml.parsers.SAXParser"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\MimeHelper.java",
+      "line_number": 14,
+      "import_value": "java.lang.reflect.Method"
     },
     {
       "severity": "MEDIUM",
@@ -1432,6 +1952,20 @@
       "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\SecureXmlTransformer.java",
       "line_number": 8,
       "import_value": "javax.xml.transform.TransformerFactory"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\signers\\ExtraParamsProcessor.java",
+      "line_number": 15,
+      "import_value": "java.lang.reflect.Method"
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens",
+      "file_path": "C:\\Users\\garet\\Desktop\\clienteafirma-master\\afirma-core\\src\\main\\java\\es\\gob\\afirma\\core\\misc\\http\\SSLErrorProcessor.java",
+      "line_number": 4,
+      "import_value": "java.lang.reflect.Method"
     }
   ],
   "autofix_suggestions": [
@@ -1805,10 +2339,10 @@
     }
   ],
   "verification_summary": {
-    "original_code_findings": 177,
-    "fixed_code_findings": 131,
-    "original_dependency_findings": 7,
-    "fixed_dependency_findings": 3,
+    "original_code_findings": 242,
+    "fixed_code_findings": 196,
+    "original_dependency_findings": 12,
+    "fixed_dependency_findings": 4,
     "original_servlet_findings": 46,
     "fixed_servlet_findings": 0,
     "original_servlet_dependencies": 4,
@@ -1828,9 +2362,9 @@
       "compile"
     ],
     "return_code": 0,
-    "stdout": "[INFO] Error stacktraces are turned on.\n[INFO] Scanning for projects...\n[INFO] ------------------------------------------------------------------------\n[INFO] Reactor Build Order:\n[INFO] \n[INFO] afirma-client                                                      [pom]\n[INFO] afirma-core                                                        [jar]\n[INFO] afirma-core-prefs                                                  [jar]\n[INFO] afirma-keystores-jmulticard-ui                                     [jar]\n[INFO] afirma-core-keystores                                              [jar]\n[INFO] afirma-crypto-batch-client                                         [jar]\n[INFO] afirma-crypto-cadestri-client                                      [jar]\n[INFO] afirma-crypto-core-pkcs7                                           [jar]\n[INFO] afirma-crypto-core-pkcs7-tsp                                       [jar]\n[INFO] afirma-crypto-cades                                                [jar]\n[INFO] afirma-crypto-cades-multi                                          [jar]\n[INFO] afirma-crypto-cms                                                  [jar]\n[INFO] afirma-crypto-core-xml                                             [jar]\n[INFO] afirma-crypto-odf                                                  [jar]\n[INFO] afirma-crypto-pdf-common                                           [jar]\n[INFO] afirma-crypto-padestri                                             [jar]\n[INFO] afirma-ui-utils                                                    [jar]\n[INFO] afirma-crypto-pdf                                                  [jar]\n[INFO] afirma-crypto-xades                                                [jar]\n[INFO] afirma-crypto-xmlsignature                                         [jar]\n[INFO] afirma-crypto-ooxml                                                [jar]\n[INFO] afirma-crypto-validation                                           [jar]\n[INFO] afirma-crypto-xadestri-client                                      [jar]\n[INFO] afirma-keystores-filters                                           [jar]\n[INFO] afirma-keystores-mozilla                                           [jar]\n[INFO] afirma-ui-core-jse                                                 [jar]\n[INFO] afirma-ui-core-jse-keystores                                       [jar]\n[INFO] afirma-core-massive                                                [jar]\n[INFO] afirma-ui-simpleafirma-configurator-common                         [jar]\n[INFO] afirma-server-triphase-signer-cache                                [jar]\n[INFO] afirma-server-triphase-signer-core                                 [jar]\n[INFO] afirma-server-triphase-signer-document                             [jar]\n[INFO] afirma-ui-simpleafirma-plugins                                     [jar]\n[INFO] afirma-ui-simpleafirma-plugins-manager                             [jar]\n[INFO] afirma-ui-simpleafirma-plugin-hash                                 [jar]\n[INFO] afirma-ui-simpleafirma-plugin-validatecerts                        [jar]\n[INFO] \n[INFO] --------------------< es.gob.afirma:afirma-client >---------------------\n[INFO] Building afirma-client 1.9                                        [1/36]\n[INFO]   from pom.xml\n[INFO] --------------------------------[ pom ]---------------------------------\n[INFO] \n[INFO] ---------------------< es.gob.afirma:afirma-core >----------------------\n[INFO] Building afirma-core 1.9                                          [2/36]\n[INFO]   from afirma-core\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-core ---\n[INFO] Copying 4 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-core ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 118 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-core\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------------< es.gob.afirma:afirma-core-prefs >-------------------\n[INFO] Building afirma-core-prefs 1.9                                    [3/36]\n[INFO]   from afirma-core-prefs\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-core-prefs ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-core-prefs\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-core-prefs ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 1 source file to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-core-prefs\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------< es.gob.afirma:afirma-keystores-jmulticard-ui >------------\n[INFO] Building afirma-keystores-jmulticard-ui 1.9                       [4/36]\n[INFO]   from afirma-keystores-jmulticard-ui\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-keystores-jmulticard-ui ---\n[INFO] Copying 8 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-keystores-jmulticard-ui ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 29 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-keystores-jmulticard-ui\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ----------------< es.gob.afirma:afirma-core-keystores >-----------------\n[INFO] Building afirma-core-keystores 1.9                                [5/36]\n[INFO]   from afirma-core-keystores\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-core-keystores ---\n[INFO] Copying 2 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-core-keystores ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 36 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-core-keystores\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] --------------< es.gob.afirma:afirma-crypto-batch-client >--------------\n[INFO] Building afirma-crypto-batch-client 1.9                           [6/36]\n[INFO]   from afirma-crypto-batch-client\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-batch-client ---\n[INFO] Copying 1 resource from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-batch-client ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 9 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-batch-client\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------< es.gob.afirma:afirma-crypto-cadestri-client >-------------\n[INFO] Building afirma-crypto-cadestri-client 1.9                        [7/36]\n[INFO]   from afirma-crypto-cadestri-client\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-cadestri-client ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-cadestri-client\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-cadestri-client ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 6 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-cadestri-client\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------------< es.gob.afirma:afirma-crypto-core-pkcs7 >---------------\n[INFO] Building afirma-crypto-core-pkcs7 1.9                             [8/36]\n[INFO]   from afirma-crypto-core-pkcs7\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-core-pkcs7 ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-core-pkcs7\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-core-pkcs7 ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 11 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-core-pkcs7\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -------------< es.gob.afirma:afirma-crypto-core-pkcs7-tsp >-------------\n[INFO] Building afirma-crypto-core-pkcs7-tsp 1.9                         [9/36]\n[INFO]   from afirma-crypto-core-pkcs7-tsp\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-core-pkcs7-tsp ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-core-pkcs7-tsp\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-core-pkcs7-tsp ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 4 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-core-pkcs7-tsp\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -----------------< es.gob.afirma:afirma-crypto-cades >------------------\n[INFO] Building afirma-crypto-cades 1.9                                 [10/36]\n[INFO]   from afirma-crypto-cades\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-cades ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-cades\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-cades ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 17 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-cades\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] --------------< es.gob.afirma:afirma-crypto-cades-multi >---------------\n[INFO] Building afirma-crypto-cades-multi 1.9                           [11/36]\n[INFO]   from afirma-crypto-cades-multi\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-cades-multi ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-cades-multi\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-cades-multi ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 9 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-cades-multi\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------------< es.gob.afirma:afirma-crypto-cms >-------------------\n[INFO] Building afirma-crypto-cms 1.9                                   [12/36]\n[INFO]   from afirma-crypto-cms\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-cms ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-cms\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-cms ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 8 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-cms\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ----------------< es.gob.afirma:afirma-crypto-core-xml >----------------\n[INFO] Building afirma-crypto-core-xml 1.9                              [13/36]\n[INFO]   from afirma-crypto-core-xml\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-core-xml ---\n[INFO] Copying 3 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-core-xml ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 18 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-core-xml\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------------< es.gob.afirma:afirma-crypto-odf >-------------------\n[INFO] Building afirma-crypto-odf 1.9                                   [14/36]\n[INFO]   from afirma-crypto-odf\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-odf ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-odf\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-odf ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 4 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-odf\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------------< es.gob.afirma:afirma-crypto-pdf-common >---------------\n[INFO] Building afirma-crypto-pdf-common 1.9                            [15/36]\n[INFO]   from afirma-crypto-pdf-common\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-pdf-common ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-pdf-common\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-pdf-common ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 7 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-pdf-common\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------< es.gob.afirma:afirma-crypto-padestri-client >-------------\n[INFO] Building afirma-crypto-padestri 1.9                              [16/36]\n[INFO]   from afirma-crypto-padestri-client\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-padestri-client ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-padestri-client\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-padestri-client ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 2 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-padestri-client\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -------------------< es.gob.afirma:afirma-ui-utils >--------------------\n[INFO] Building afirma-ui-utils 1.9                                     [17/36]\n[INFO]   from afirma-ui-utils\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-utils ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-ui-utils\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-utils ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 1 source file to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-ui-utils\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------------< es.gob.afirma:afirma-crypto-pdf >-------------------\n[INFO] Building afirma-crypto-pdf 1.9                                   [18/36]\n[INFO]   from afirma-crypto-pdf\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-pdf ---\n[INFO] Copying 6 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-pdf ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 17 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-pdf\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -----------------< es.gob.afirma:afirma-crypto-xades >------------------\n[INFO] Building afirma-crypto-xades 1.9                                 [19/36]\n[INFO]   from afirma-crypto-xades\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-xades ---\n[INFO] Copying 2 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-xades ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 23 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-xades\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] --------------< es.gob.afirma:afirma-crypto-xmlsignature >--------------\n[INFO] Building afirma-crypto-xmlsignature 1.9                          [20/36]\n[INFO]   from afirma-crypto-xmlsignature\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-xmlsignature ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-xmlsignature\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-xmlsignature ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 5 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-xmlsignature\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -----------------< es.gob.afirma:afirma-crypto-ooxml >------------------\n[INFO] Building afirma-crypto-ooxml 1.9                                 [21/36]\n[INFO]   from afirma-crypto-ooxml\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-ooxml ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-ooxml\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-ooxml ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 19 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-ooxml\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------------< es.gob.afirma:afirma-crypto-validation >---------------\n[INFO] Building afirma-crypto-validation 1.9                            [22/36]\n[INFO]   from afirma-crypto-validation\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-validation ---\n[INFO] Copying 1 resource from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-validation ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 16 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-validation\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------< es.gob.afirma:afirma-crypto-xadestri-client >-------------\n[INFO] Building afirma-crypto-xadestri-client 1.9                       [23/36]\n[INFO]   from afirma-crypto-xadestri-client\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-xadestri-client ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-xadestri-client\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-xadestri-client ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 4 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-crypto-xadestri-client\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------------< es.gob.afirma:afirma-keystores-filters >---------------\n[INFO] Building afirma-keystores-filters 1.9                            [24/36]\n[INFO]   from afirma-keystores-filters\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-keystores-filters ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-keystores-filters\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-keystores-filters ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 23 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-keystores-filters\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------------< es.gob.afirma:afirma-keystores-mozilla >---------------\n[INFO] Building afirma-keystores-mozilla 1.9                            [25/36]\n[INFO]   from afirma-keystores-mozilla\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-keystores-mozilla ---\n[INFO] Copying 3 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-keystores-mozilla ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 24 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-keystores-mozilla\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------------< es.gob.afirma:afirma-ui-core-jse >------------------\n[INFO] Building afirma-ui-core-jse 1.9                                  [26/36]\n[INFO]   from afirma-ui-core-jse\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-core-jse ---\n[INFO] Copying 4 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-core-jse ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 7 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-ui-core-jse\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -------------< es.gob.afirma:afirma-ui-core-jse-keystores >-------------\n[INFO] Building afirma-ui-core-jse-keystores 1.9                        [27/36]\n[INFO]   from afirma-ui-core-jse-keystores\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-core-jse-keystores ---\n[INFO] Copying 26 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-core-jse-keystores ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 17 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-ui-core-jse-keystores\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -----------------< es.gob.afirma:afirma-core-massive >------------------\n[INFO] Building afirma-core-massive 1.9                                 [28/36]\n[INFO]   from afirma-core-massive\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-core-massive ---\n[INFO] Copying 2 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-core-massive ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 8 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-core-massive\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------< es.gob.afirma:afirma-ui-simpleafirma-configurator-common >------\n[INFO] Building afirma-ui-simpleafirma-configurator-common 1.9          [29/36]\n[INFO]   from afirma-ui-simple-configurator-common\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-simpleafirma-configurator-common ---\n[INFO] Copying 2 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-simpleafirma-configurator-common ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 13 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-ui-simple-configurator-common\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------< es.gob.afirma:afirma-server-triphase-signer-cache >----------\n[INFO] Building afirma-server-triphase-signer-cache 1.9                 [30/36]\n[INFO]   from afirma-server-triphase-signer-cache\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-server-triphase-signer-cache ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-server-triphase-signer-cache\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-server-triphase-signer-cache ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 1 source file to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-server-triphase-signer-cache\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ----------< es.gob.afirma:afirma-server-triphase-signer-core >----------\n[INFO] Building afirma-server-triphase-signer-core 1.9                  [31/36]\n[INFO]   from afirma-server-triphase-signer-core\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-server-triphase-signer-core ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-server-triphase-signer-core\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-server-triphase-signer-core ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 25 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-server-triphase-signer-core\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] --------< es.gob.afirma:afirma-server-triphase-signer-document >--------\n[INFO] Building afirma-server-triphase-signer-document 1.9              [32/36]\n[INFO]   from afirma-server-triphase-signer-document\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-server-triphase-signer-document ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-server-triphase-signer-document\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-server-triphase-signer-document ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 2 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-server-triphase-signer-document\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------< es.gob.afirma:afirma-ui-simpleafirma-plugins >------------\n[INFO] Building afirma-ui-simpleafirma-plugins 1.9                      [33/36]\n[INFO]   from afirma-simple-plugins\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-simpleafirma-plugins ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-simple-plugins\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-simpleafirma-plugins ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 22 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-simple-plugins\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] --------< es.gob.afirma:afirma-ui-simpleafirma-plugins-manager >--------\n[INFO] Building afirma-ui-simpleafirma-plugins-manager 1.9              [34/36]\n[INFO]   from afirma-simple-plugins-manager\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-simpleafirma-plugins-manager ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-simple-plugins-manager\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-simpleafirma-plugins-manager ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 9 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-simple-plugins-manager\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ----------< es.gob.afirma:afirma-ui-simpleafirma-plugin-hash >----------\n[INFO] Building afirma-ui-simpleafirma-plugin-hash 1.0                  [35/36]\n[INFO]   from afirma-simple-plugin-hash\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-simpleafirma-plugin-hash ---\n[INFO] Copying 6 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-simpleafirma-plugin-hash ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 32 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-simple-plugin-hash\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -----< es.gob.afirma:afirma-ui-simpleafirma-plugin-validatecerts >------\n[INFO] Building afirma-ui-simpleafirma-plugin-validatecerts 1.0         [36/36]\n[INFO]   from afirma-simple-plugin-validatecerts\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-simpleafirma-plugin-validatecerts ---\n[INFO] Copying 26 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-simpleafirma-plugin-validatecerts ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 21 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857\\afirma-simple-plugin-validatecerts\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] ------------------------------------------------------------------------\n[INFO] Reactor Summary:\n[INFO] \n[INFO] afirma-client 1.9 .................................. SUCCESS [  0.001 s]\n[INFO] afirma-core 1.9 .................................... SUCCESS [  1.507 s]\n[INFO] afirma-core-prefs 1.9 .............................. SUCCESS [  0.367 s]\n[INFO] afirma-keystores-jmulticard-ui 1.9 ................. SUCCESS [  1.255 s]\n[INFO] afirma-core-keystores 1.9 .......................... SUCCESS [  3.694 s]\n[INFO] afirma-crypto-batch-client 1.9 ..................... SUCCESS [  0.590 s]\n[INFO] afirma-crypto-cadestri-client 1.9 .................. SUCCESS [  0.462 s]\n[INFO] afirma-crypto-core-pkcs7 1.9 ....................... SUCCESS [  1.878 s]\n[INFO] afirma-crypto-core-pkcs7-tsp 1.9 ................... SUCCESS [  0.815 s]\n[INFO] afirma-crypto-cades 1.9 ............................ SUCCESS [  0.651 s]\n[INFO] afirma-crypto-cades-multi 1.9 ...................... SUCCESS [  0.550 s]\n[INFO] afirma-crypto-cms 1.9 .............................. SUCCESS [  0.566 s]\n[INFO] afirma-crypto-core-xml 1.9 ......................... SUCCESS [  1.720 s]\n[INFO] afirma-crypto-odf 1.9 .............................. SUCCESS [  0.542 s]\n[INFO] afirma-crypto-pdf-common 1.9 ....................... SUCCESS [  0.378 s]\n[INFO] afirma-crypto-padestri 1.9 ......................... SUCCESS [  0.458 s]\n[INFO] afirma-ui-utils 1.9 ................................ SUCCESS [  0.321 s]\n[INFO] afirma-crypto-pdf 1.9 .............................. SUCCESS [  1.788 s]\n[INFO] afirma-crypto-xades 1.9 ............................ SUCCESS [  1.066 s]\n[INFO] afirma-crypto-xmlsignature 1.9 ..................... SUCCESS [  0.615 s]\n[INFO] afirma-crypto-ooxml 1.9 ............................ SUCCESS [  0.709 s]\n[INFO] afirma-crypto-validation 1.9 ....................... SUCCESS [  2.202 s]\n[INFO] afirma-crypto-xadestri-client 1.9 .................. SUCCESS [  0.476 s]\n[INFO] afirma-keystores-filters 1.9 ....................... SUCCESS [  0.731 s]\n[INFO] afirma-keystores-mozilla 1.9 ....................... SUCCESS [  0.742 s]\n[INFO] afirma-ui-core-jse 1.9 ............................. SUCCESS [  0.594 s]\n[INFO] afirma-ui-core-jse-keystores 1.9 ................... SUCCESS [  0.698 s]\n[INFO] afirma-core-massive 1.9 ............................ SUCCESS [  0.537 s]\n[INFO] afirma-ui-simpleafirma-configurator-common 1.9 ..... SUCCESS [  0.718 s]\n[INFO] afirma-server-triphase-signer-cache 1.9 ............ SUCCESS [  0.289 s]\n[INFO] afirma-server-triphase-signer-core 1.9 ............. SUCCESS [  0.870 s]\n[INFO] afirma-server-triphase-signer-document 1.9 ......... SUCCESS [  0.301 s]\n[INFO] afirma-ui-simpleafirma-plugins 1.9 ................. SUCCESS [  0.508 s]\n[INFO] afirma-ui-simpleafirma-plugins-manager 1.9 ......... SUCCESS [  0.818 s]\n[INFO] afirma-ui-simpleafirma-plugin-hash 1.0 ............. SUCCESS [  0.845 s]\n[INFO] afirma-ui-simpleafirma-plugin-validatecerts 1.0 .... SUCCESS [  0.677 s]\n[INFO] ------------------------------------------------------------------------\n[INFO] BUILD SUCCESS\n[INFO] ------------------------------------------------------------------------\n[INFO] Total time:  31.087 s\n[INFO] Finished at: 2026-04-19T18:09:37+02:00\n[INFO] ------------------------------------------------------------------------\n",
+    "stdout": "[INFO] Error stacktraces are turned on.\n[INFO] Scanning for projects...\n[INFO] ------------------------------------------------------------------------\n[INFO] Reactor Build Order:\n[INFO] \n[INFO] afirma-client                                                      [pom]\n[INFO] afirma-core                                                        [jar]\n[INFO] afirma-core-prefs                                                  [jar]\n[INFO] afirma-keystores-jmulticard-ui                                     [jar]\n[INFO] afirma-core-keystores                                              [jar]\n[INFO] afirma-crypto-batch-client                                         [jar]\n[INFO] afirma-crypto-cadestri-client                                      [jar]\n[INFO] afirma-crypto-core-pkcs7                                           [jar]\n[INFO] afirma-crypto-core-pkcs7-tsp                                       [jar]\n[INFO] afirma-crypto-cades                                                [jar]\n[INFO] afirma-crypto-cades-multi                                          [jar]\n[INFO] afirma-crypto-cms                                                  [jar]\n[INFO] afirma-crypto-core-xml                                             [jar]\n[INFO] afirma-crypto-odf                                                  [jar]\n[INFO] afirma-crypto-pdf-common                                           [jar]\n[INFO] afirma-crypto-padestri                                             [jar]\n[INFO] afirma-ui-utils                                                    [jar]\n[INFO] afirma-crypto-pdf                                                  [jar]\n[INFO] afirma-crypto-xades                                                [jar]\n[INFO] afirma-crypto-xmlsignature                                         [jar]\n[INFO] afirma-crypto-ooxml                                                [jar]\n[INFO] afirma-crypto-validation                                           [jar]\n[INFO] afirma-crypto-xadestri-client                                      [jar]\n[INFO] afirma-keystores-filters                                           [jar]\n[INFO] afirma-keystores-mozilla                                           [jar]\n[INFO] afirma-ui-core-jse                                                 [jar]\n[INFO] afirma-ui-core-jse-keystores                                       [jar]\n[INFO] afirma-core-massive                                                [jar]\n[INFO] afirma-ui-simpleafirma-configurator-common                         [jar]\n[INFO] afirma-server-triphase-signer-cache                                [jar]\n[INFO] afirma-server-triphase-signer-core                                 [jar]\n[INFO] afirma-server-triphase-signer-document                             [jar]\n[INFO] afirma-ui-simpleafirma-plugins                                     [jar]\n[INFO] afirma-ui-simpleafirma-plugins-manager                             [jar]\n[INFO] afirma-ui-simpleafirma-plugin-hash                                 [jar]\n[INFO] afirma-ui-simpleafirma-plugin-validatecerts                        [jar]\n[INFO] \n[INFO] --------------------< es.gob.afirma:afirma-client >---------------------\n[INFO] Building afirma-client 1.9                                        [1/36]\n[INFO]   from pom.xml\n[INFO] --------------------------------[ pom ]---------------------------------\n[INFO] \n[INFO] ---------------------< es.gob.afirma:afirma-core >----------------------\n[INFO] Building afirma-core 1.9                                          [2/36]\n[INFO]   from afirma-core\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-core ---\n[INFO] Copying 4 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-core ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 118 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-core\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------------< es.gob.afirma:afirma-core-prefs >-------------------\n[INFO] Building afirma-core-prefs 1.9                                    [3/36]\n[INFO]   from afirma-core-prefs\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-core-prefs ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-core-prefs\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-core-prefs ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 1 source file to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-core-prefs\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------< es.gob.afirma:afirma-keystores-jmulticard-ui >------------\n[INFO] Building afirma-keystores-jmulticard-ui 1.9                       [4/36]\n[INFO]   from afirma-keystores-jmulticard-ui\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-keystores-jmulticard-ui ---\n[INFO] Copying 8 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-keystores-jmulticard-ui ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 29 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-keystores-jmulticard-ui\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ----------------< es.gob.afirma:afirma-core-keystores >-----------------\n[INFO] Building afirma-core-keystores 1.9                                [5/36]\n[INFO]   from afirma-core-keystores\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-core-keystores ---\n[INFO] Copying 2 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-core-keystores ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 36 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-core-keystores\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] --------------< es.gob.afirma:afirma-crypto-batch-client >--------------\n[INFO] Building afirma-crypto-batch-client 1.9                           [6/36]\n[INFO]   from afirma-crypto-batch-client\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-batch-client ---\n[INFO] Copying 1 resource from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-batch-client ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 9 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-batch-client\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------< es.gob.afirma:afirma-crypto-cadestri-client >-------------\n[INFO] Building afirma-crypto-cadestri-client 1.9                        [7/36]\n[INFO]   from afirma-crypto-cadestri-client\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-cadestri-client ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-cadestri-client\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-cadestri-client ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 6 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-cadestri-client\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------------< es.gob.afirma:afirma-crypto-core-pkcs7 >---------------\n[INFO] Building afirma-crypto-core-pkcs7 1.9                             [8/36]\n[INFO]   from afirma-crypto-core-pkcs7\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-core-pkcs7 ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-core-pkcs7\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-core-pkcs7 ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 11 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-core-pkcs7\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -------------< es.gob.afirma:afirma-crypto-core-pkcs7-tsp >-------------\n[INFO] Building afirma-crypto-core-pkcs7-tsp 1.9                         [9/36]\n[INFO]   from afirma-crypto-core-pkcs7-tsp\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-core-pkcs7-tsp ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-core-pkcs7-tsp\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-core-pkcs7-tsp ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 4 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-core-pkcs7-tsp\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -----------------< es.gob.afirma:afirma-crypto-cades >------------------\n[INFO] Building afirma-crypto-cades 1.9                                 [10/36]\n[INFO]   from afirma-crypto-cades\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-cades ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-cades\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-cades ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 17 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-cades\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] --------------< es.gob.afirma:afirma-crypto-cades-multi >---------------\n[INFO] Building afirma-crypto-cades-multi 1.9                           [11/36]\n[INFO]   from afirma-crypto-cades-multi\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-cades-multi ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-cades-multi\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-cades-multi ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 9 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-cades-multi\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------------< es.gob.afirma:afirma-crypto-cms >-------------------\n[INFO] Building afirma-crypto-cms 1.9                                   [12/36]\n[INFO]   from afirma-crypto-cms\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-cms ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-cms\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-cms ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 8 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-cms\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ----------------< es.gob.afirma:afirma-crypto-core-xml >----------------\n[INFO] Building afirma-crypto-core-xml 1.9                              [13/36]\n[INFO]   from afirma-crypto-core-xml\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-core-xml ---\n[INFO] Copying 3 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-core-xml ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 18 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-core-xml\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------------< es.gob.afirma:afirma-crypto-odf >-------------------\n[INFO] Building afirma-crypto-odf 1.9                                   [14/36]\n[INFO]   from afirma-crypto-odf\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-odf ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-odf\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-odf ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 4 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-odf\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------------< es.gob.afirma:afirma-crypto-pdf-common >---------------\n[INFO] Building afirma-crypto-pdf-common 1.9                            [15/36]\n[INFO]   from afirma-crypto-pdf-common\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-pdf-common ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-pdf-common\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-pdf-common ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 7 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-pdf-common\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------< es.gob.afirma:afirma-crypto-padestri-client >-------------\n[INFO] Building afirma-crypto-padestri 1.9                              [16/36]\n[INFO]   from afirma-crypto-padestri-client\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-padestri-client ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-padestri-client\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-padestri-client ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 2 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-padestri-client\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -------------------< es.gob.afirma:afirma-ui-utils >--------------------\n[INFO] Building afirma-ui-utils 1.9                                     [17/36]\n[INFO]   from afirma-ui-utils\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-utils ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-ui-utils\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-utils ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 1 source file to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-ui-utils\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------------< es.gob.afirma:afirma-crypto-pdf >-------------------\n[INFO] Building afirma-crypto-pdf 1.9                                   [18/36]\n[INFO]   from afirma-crypto-pdf\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-pdf ---\n[INFO] Copying 6 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-pdf ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 17 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-pdf\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -----------------< es.gob.afirma:afirma-crypto-xades >------------------\n[INFO] Building afirma-crypto-xades 1.9                                 [19/36]\n[INFO]   from afirma-crypto-xades\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-xades ---\n[INFO] Copying 2 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-xades ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 23 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-xades\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] --------------< es.gob.afirma:afirma-crypto-xmlsignature >--------------\n[INFO] Building afirma-crypto-xmlsignature 1.9                          [20/36]\n[INFO]   from afirma-crypto-xmlsignature\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-xmlsignature ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-xmlsignature\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-xmlsignature ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 5 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-xmlsignature\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -----------------< es.gob.afirma:afirma-crypto-ooxml >------------------\n[INFO] Building afirma-crypto-ooxml 1.9                                 [21/36]\n[INFO]   from afirma-crypto-ooxml\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-ooxml ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-ooxml\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-ooxml ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 19 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-ooxml\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------------< es.gob.afirma:afirma-crypto-validation >---------------\n[INFO] Building afirma-crypto-validation 1.9                            [22/36]\n[INFO]   from afirma-crypto-validation\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-validation ---\n[INFO] Copying 1 resource from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-validation ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 16 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-validation\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------< es.gob.afirma:afirma-crypto-xadestri-client >-------------\n[INFO] Building afirma-crypto-xadestri-client 1.9                       [23/36]\n[INFO]   from afirma-crypto-xadestri-client\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-crypto-xadestri-client ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-xadestri-client\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-crypto-xadestri-client ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 4 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-crypto-xadestri-client\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------------< es.gob.afirma:afirma-keystores-filters >---------------\n[INFO] Building afirma-keystores-filters 1.9                            [24/36]\n[INFO]   from afirma-keystores-filters\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-keystores-filters ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-keystores-filters\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-keystores-filters ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 23 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-keystores-filters\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------------< es.gob.afirma:afirma-keystores-mozilla >---------------\n[INFO] Building afirma-keystores-mozilla 1.9                            [25/36]\n[INFO]   from afirma-keystores-mozilla\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-keystores-mozilla ---\n[INFO] Copying 3 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-keystores-mozilla ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 24 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-keystores-mozilla\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------------< es.gob.afirma:afirma-ui-core-jse >------------------\n[INFO] Building afirma-ui-core-jse 1.9                                  [26/36]\n[INFO]   from afirma-ui-core-jse\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-core-jse ---\n[INFO] Copying 4 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-core-jse ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 7 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-ui-core-jse\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -------------< es.gob.afirma:afirma-ui-core-jse-keystores >-------------\n[INFO] Building afirma-ui-core-jse-keystores 1.9                        [27/36]\n[INFO]   from afirma-ui-core-jse-keystores\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-core-jse-keystores ---\n[INFO] Copying 26 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-core-jse-keystores ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 17 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-ui-core-jse-keystores\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -----------------< es.gob.afirma:afirma-core-massive >------------------\n[INFO] Building afirma-core-massive 1.9                                 [28/36]\n[INFO]   from afirma-core-massive\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-core-massive ---\n[INFO] Copying 2 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-core-massive ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 8 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-core-massive\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------< es.gob.afirma:afirma-ui-simpleafirma-configurator-common >------\n[INFO] Building afirma-ui-simpleafirma-configurator-common 1.9          [29/36]\n[INFO]   from afirma-ui-simple-configurator-common\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-simpleafirma-configurator-common ---\n[INFO] Copying 2 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-simpleafirma-configurator-common ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 13 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-ui-simple-configurator-common\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ---------< es.gob.afirma:afirma-server-triphase-signer-cache >----------\n[INFO] Building afirma-server-triphase-signer-cache 1.9                 [30/36]\n[INFO]   from afirma-server-triphase-signer-cache\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-server-triphase-signer-cache ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-server-triphase-signer-cache\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-server-triphase-signer-cache ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 1 source file to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-server-triphase-signer-cache\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ----------< es.gob.afirma:afirma-server-triphase-signer-core >----------\n[INFO] Building afirma-server-triphase-signer-core 1.9                  [31/36]\n[INFO]   from afirma-server-triphase-signer-core\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-server-triphase-signer-core ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-server-triphase-signer-core\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-server-triphase-signer-core ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 25 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-server-triphase-signer-core\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] --------< es.gob.afirma:afirma-server-triphase-signer-document >--------\n[INFO] Building afirma-server-triphase-signer-document 1.9              [32/36]\n[INFO]   from afirma-server-triphase-signer-document\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-server-triphase-signer-document ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-server-triphase-signer-document\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-server-triphase-signer-document ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 2 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-server-triphase-signer-document\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ------------< es.gob.afirma:afirma-ui-simpleafirma-plugins >------------\n[INFO] Building afirma-ui-simpleafirma-plugins 1.9                      [33/36]\n[INFO]   from afirma-simple-plugins\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-simpleafirma-plugins ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-simple-plugins\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-simpleafirma-plugins ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 22 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-simple-plugins\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] --------< es.gob.afirma:afirma-ui-simpleafirma-plugins-manager >--------\n[INFO] Building afirma-ui-simpleafirma-plugins-manager 1.9              [34/36]\n[INFO]   from afirma-simple-plugins-manager\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-simpleafirma-plugins-manager ---\n[INFO] skip non existing resourceDirectory C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-simple-plugins-manager\\src\\main\\resources\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-simpleafirma-plugins-manager ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 9 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-simple-plugins-manager\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] ----------< es.gob.afirma:afirma-ui-simpleafirma-plugin-hash >----------\n[INFO] Building afirma-ui-simpleafirma-plugin-hash 1.0                  [35/36]\n[INFO]   from afirma-simple-plugin-hash\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-simpleafirma-plugin-hash ---\n[INFO] Copying 6 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-simpleafirma-plugin-hash ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 32 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-simple-plugin-hash\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] \n[INFO] -----< es.gob.afirma:afirma-ui-simpleafirma-plugin-validatecerts >------\n[INFO] Building afirma-ui-simpleafirma-plugin-validatecerts 1.0         [36/36]\n[INFO]   from afirma-simple-plugin-validatecerts\\pom.xml\n[INFO] --------------------------------[ jar ]---------------------------------\n[INFO] \n[INFO] --- resources:3.4.0:resources (default-resources) @ afirma-ui-simpleafirma-plugin-validatecerts ---\n[INFO] Copying 26 resources from src\\main\\resources to target\\classes\n[INFO] \n[INFO] --- compiler:3.10.1:compile (default-compile) @ afirma-ui-simpleafirma-plugin-validatecerts ---\n[INFO] Changes detected - recompiling the module!\n[INFO] Compiling 21 source files to C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511\\afirma-simple-plugin-validatecerts\\target\\classes\n[WARNING] Unable to autodetect 'javac' path, using 'javac' from the environment.\n[INFO] ------------------------------------------------------------------------\n[INFO] Reactor Summary:\n[INFO] \n[INFO] afirma-client 1.9 .................................. SUCCESS [  0.001 s]\n[INFO] afirma-core 1.9 .................................... SUCCESS [  1.595 s]\n[INFO] afirma-core-prefs 1.9 .............................. SUCCESS [  0.398 s]\n[INFO] afirma-keystores-jmulticard-ui 1.9 ................. SUCCESS [  0.744 s]\n[INFO] afirma-core-keystores 1.9 .......................... SUCCESS [  0.852 s]\n[INFO] afirma-crypto-batch-client 1.9 ..................... SUCCESS [  0.517 s]\n[INFO] afirma-crypto-cadestri-client 1.9 .................. SUCCESS [  0.489 s]\n[INFO] afirma-crypto-core-pkcs7 1.9 ....................... SUCCESS [  0.553 s]\n[INFO] afirma-crypto-core-pkcs7-tsp 1.9 ................... SUCCESS [  0.559 s]\n[INFO] afirma-crypto-cades 1.9 ............................ SUCCESS [  0.667 s]\n[INFO] afirma-crypto-cades-multi 1.9 ...................... SUCCESS [  0.579 s]\n[INFO] afirma-crypto-cms 1.9 .............................. SUCCESS [  0.604 s]\n[INFO] afirma-crypto-core-xml 1.9 ......................... SUCCESS [  0.705 s]\n[INFO] afirma-crypto-odf 1.9 .............................. SUCCESS [  0.567 s]\n[INFO] afirma-crypto-pdf-common 1.9 ....................... SUCCESS [  0.400 s]\n[INFO] afirma-crypto-padestri 1.9 ......................... SUCCESS [  0.485 s]\n[INFO] afirma-ui-utils 1.9 ................................ SUCCESS [  0.357 s]\n[INFO] afirma-crypto-pdf 1.9 .............................. SUCCESS [  0.806 s]\n[INFO] afirma-crypto-xades 1.9 ............................ SUCCESS [  0.984 s]\n[INFO] afirma-crypto-xmlsignature 1.9 ..................... SUCCESS [  0.648 s]\n[INFO] afirma-crypto-ooxml 1.9 ............................ SUCCESS [  0.760 s]\n[INFO] afirma-crypto-validation 1.9 ....................... SUCCESS [  0.879 s]\n[INFO] afirma-crypto-xadestri-client 1.9 .................. SUCCESS [  0.505 s]\n[INFO] afirma-keystores-filters 1.9 ....................... SUCCESS [  0.791 s]\n[INFO] afirma-keystores-mozilla 1.9 ....................... SUCCESS [  0.828 s]\n[INFO] afirma-ui-core-jse 1.9 ............................. SUCCESS [  0.621 s]\n[INFO] afirma-ui-core-jse-keystores 1.9 ................... SUCCESS [  0.732 s]\n[INFO] afirma-core-massive 1.9 ............................ SUCCESS [  0.545 s]\n[INFO] afirma-ui-simpleafirma-configurator-common 1.9 ..... SUCCESS [  0.753 s]\n[INFO] afirma-server-triphase-signer-cache 1.9 ............ SUCCESS [  0.304 s]\n[INFO] afirma-server-triphase-signer-core 1.9 ............. SUCCESS [  0.908 s]\n[INFO] afirma-server-triphase-signer-document 1.9 ......... SUCCESS [  0.320 s]\n[INFO] afirma-ui-simpleafirma-plugins 1.9 ................. SUCCESS [  0.551 s]\n[INFO] afirma-ui-simpleafirma-plugins-manager 1.9 ......... SUCCESS [  0.577 s]\n[INFO] afirma-ui-simpleafirma-plugin-hash 1.0 ............. SUCCESS [  0.904 s]\n[INFO] afirma-ui-simpleafirma-plugin-validatecerts 1.0 .... SUCCESS [  0.750 s]\n[INFO] ------------------------------------------------------------------------\n[INFO] BUILD SUCCESS\n[INFO] ------------------------------------------------------------------------\n[INFO] Total time:  23.396 s\n[INFO] Finished at: 2026-04-19T21:35:45+02:00\n[INFO] ------------------------------------------------------------------------\n",
     "stderr": "",
-    "working_directory": "C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_180857"
+    "working_directory": "C:\\Users\\garet\\Desktop\\JAVA_Transform\\output\\fixed_project_20260419_213511"
   },
   "build_error_findings": []
 }

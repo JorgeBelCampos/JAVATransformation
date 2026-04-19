@@ -33,6 +33,37 @@ JAVA_SE_JAVAX_PREFIXES = (
     "javax.sql.",
 )
 
+JAXB_PREFIXES = (
+    "javax.xml.bind.",
+    "javax.xml.bind.annotation.",
+)
+
+JAXWS_PREFIXES = (
+    "javax.xml.ws.",
+    "javax.jws.",
+    "javax.jws.soap.",
+)
+
+ACTIVATION_PREFIXES = (
+    "javax.activation.",
+)
+
+JSON_PREFIXES = (
+    "javax.json.",
+)
+
+INTERNAL_JDK_PREFIXES = (
+    "sun.",
+    "com.sun.",
+    "jdk.internal.",
+)
+
+REFLECTION_RISK_PREFIXES = (
+    "java.lang.reflect.",
+    "sun.reflect.",
+    "jdk.internal.reflect.",
+)
+
 
 @dataclass
 class ImportFinding:
@@ -93,17 +124,23 @@ def analyze_problematic_imports(imports: list[tuple[str, int, str]]) -> list[Imp
         elif import_value.startswith("javax.") and not import_value.startswith(JAVA_SE_JAVAX_PREFIXES):
             rules.append(("MEDIUM", "javax.* usage detected; review whether migration is required"))
 
-        if import_value.startswith("javax.xml.bind.") or "xml.bind" in import_value:
+        if import_value.startswith(JAXB_PREFIXES) or "xml.bind" in import_value:
             rules.append(("HIGH", "JAXB API removed from JDK after Java 11"))
 
-        if import_value.startswith("javax.xml.ws.") or "xml.ws" in import_value or ".ws." in import_value:
+        if import_value.startswith(JAXWS_PREFIXES) or "xml.ws" in import_value or ".ws." in import_value:
             rules.append(("HIGH", "JAX-WS API removed from JDK after Java 11"))
 
-        if import_value.startswith("sun."):
-            rules.append(("HIGH", "sun.* internal JDK APIs are risky and may break on newer Java versions"))
+        if import_value.startswith(ACTIVATION_PREFIXES):
+            rules.append(("HIGH", "javax.activation removed from JDK after Java 11"))
 
-        if import_value.startswith("com.sun."):
-            rules.append(("HIGH", "com.sun.* internal JDK APIs are risky and may break on newer Java versions"))
+        if import_value.startswith(JSON_PREFIXES):
+            rules.append(("MEDIUM", "Legacy javax.json API detected; explicit dependency or jakarta.json migration may be needed"))
+
+        if import_value.startswith(INTERNAL_JDK_PREFIXES):
+            rules.append(("HIGH", "Internal JDK APIs are risky and may break on newer Java versions"))
+
+        if import_value.startswith(REFLECTION_RISK_PREFIXES) or import_value == "java.lang.invoke.MethodHandles":
+            rules.append(("MEDIUM", "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens"))
 
         for severity, message in rules:
             key = (file_path, message, line_number, import_value)

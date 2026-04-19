@@ -29,7 +29,7 @@ def generate_top_fix_candidates(
     internal_api_findings = [
         finding
         for finding in code_findings
-        if finding.import_value.startswith("com.sun.") or finding.import_value.startswith("sun.")
+        if finding.import_value.startswith(("com.sun.", "sun.", "jdk.internal."))
     ]
     if internal_api_findings:
         candidates.append(
@@ -42,6 +42,25 @@ def generate_top_fix_candidates(
                 affected_files=len({finding.file_path for finding in internal_api_findings}),
                 occurrences=len(internal_api_findings),
                 recommendation="Replace com.sun.* / sun.* usages with supported public APIs before final migration validation.",
+            )
+        )
+
+    reflection_findings = [
+        finding
+        for finding in code_findings
+        if finding.message == "Reflection or encapsulation-sensitive API detected; Java 17+ may require refactoring or --add-opens"
+    ]
+    if reflection_findings:
+        candidates.append(
+            FixCandidate(
+                title="Review reflection and encapsulation-sensitive code",
+                category="reflection_risk",
+                impact="HIGH",
+                effort="MEDIUM",
+                reason="Reflection-heavy code can fail under stronger encapsulation in Java 17+.",
+                affected_files=len({finding.file_path for finding in reflection_findings}),
+                occurrences=len(reflection_findings),
+                recommendation="Review reflective access, setAccessible-style flows, and illegal-access warnings before finalizing Java 17+ migration.",
             )
         )
 
@@ -65,6 +84,82 @@ def generate_top_fix_candidates(
             )
         )
 
+    jaxb_findings = [
+        finding
+        for finding in code_findings
+        if finding.message == "JAXB API removed from JDK after Java 11"
+    ]
+    if jaxb_findings:
+        candidates.append(
+            FixCandidate(
+                title="Add explicit JAXB support for Java 11+",
+                category="jaxb_removal",
+                impact="HIGH",
+                effort="LOW",
+                reason="JAXB APIs were removed from the JDK and must be managed explicitly.",
+                affected_files=len({finding.file_path for finding in jaxb_findings}),
+                occurrences=len(jaxb_findings),
+                recommendation="Add explicit JAXB API/runtime dependencies in Maven and verify XML binding flows on the target JDK.",
+            )
+        )
+
+    jaxws_findings = [
+        finding
+        for finding in code_findings
+        if finding.message == "JAX-WS API removed from JDK after Java 11"
+    ]
+    if jaxws_findings:
+        candidates.append(
+            FixCandidate(
+                title="Add explicit JAX-WS dependencies",
+                category="jaxws_removal",
+                impact="HIGH",
+                effort="MEDIUM",
+                reason="JAX-WS APIs were removed from the JDK and often block Java 11+ upgrades.",
+                affected_files=len({finding.file_path for finding in jaxws_findings}),
+                occurrences=len(jaxws_findings),
+                recommendation="Add explicit SOAP/JAX-WS dependencies and verify client/server code generation and runtime behavior.",
+            )
+        )
+
+    activation_findings = [
+        finding
+        for finding in code_findings
+        if finding.message == "javax.activation removed from JDK after Java 11"
+    ]
+    if activation_findings:
+        candidates.append(
+            FixCandidate(
+                title="Add explicit activation dependency",
+                category="activation_removal",
+                impact="HIGH",
+                effort="LOW",
+                reason="javax.activation is no longer bundled in newer JDKs.",
+                affected_files=len({finding.file_path for finding in activation_findings}),
+                occurrences=len(activation_findings),
+                recommendation="Add an explicit activation dependency compatible with the current codebase before re-running the build.",
+            )
+        )
+
+    json_findings = [
+        finding
+        for finding in code_findings
+        if finding.message == "Legacy javax.json API detected; explicit dependency or jakarta.json migration may be needed"
+    ]
+    if json_findings:
+        candidates.append(
+            FixCandidate(
+                title="Review legacy javax.json usage",
+                category="javax_json_review",
+                impact="MEDIUM",
+                effort="LOW",
+                reason="Old javax.json APIs may need explicit dependency management on modern JDKs.",
+                affected_files=len({finding.file_path for finding in json_findings}),
+                occurrences=len(json_findings),
+                recommendation="Add explicit javax.json dependency first, then evaluate whether jakarta.json migration is desirable.",
+            )
+        )
+
     # 3. Servlet dependencies
     servlet_dependency_findings = [
         finding
@@ -82,6 +177,26 @@ def generate_top_fix_candidates(
                 affected_files=0,
                 occurrences=len(servlet_dependency_findings),
                 recommendation="Review and replace old servlet artifacts such as servlet-api 2.5 / javax.servlet-api 3.x according to target container.",
+            )
+        )
+
+    compiler_config_findings = [
+        finding
+        for finding in dependency_findings
+        if "Legacy Maven compiler configuration detected" in finding.message
+        or "Legacy Java compiler property detected" in finding.message
+    ]
+    if compiler_config_findings:
+        candidates.append(
+            FixCandidate(
+                title="Modernize Maven compiler Java level",
+                category="compiler_config",
+                impact="VERY_HIGH",
+                effort="LOW",
+                reason="Old source/target/release values can make builds fail immediately on newer JDKs.",
+                affected_files=0,
+                occurrences=len(compiler_config_findings),
+                recommendation="Raise compiler source/target/release and related properties to at least Java 8 before attempting higher-JDK validation.",
             )
         )
 

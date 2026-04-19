@@ -37,7 +37,21 @@ def classify_finding_category(finding: ImportFinding) -> str:
     if import_value.startswith("javax.xml.ws.") or "xml.ws" in import_value or ".ws." in import_value:
         return "JAX-WS Removal"
 
-    if import_value.startswith("sun.") or import_value.startswith("com.sun."):
+    if import_value.startswith("javax.activation."):
+        return "Activation Removal"
+
+    if import_value.startswith("javax.json."):
+        return "Legacy JSON API"
+
+    if (
+        import_value.startswith("java.lang.reflect.")
+        or import_value == "java.lang.invoke.MethodHandles"
+        or import_value.startswith("sun.reflect.")
+        or import_value.startswith("jdk.internal.reflect.")
+    ):
+        return "Reflection Encapsulation Risks"
+
+    if import_value.startswith("sun.") or import_value.startswith("com.sun.") or import_value.startswith("jdk.internal."):
         return "Internal JDK APIs"
 
     if import_value.startswith("javax."):
@@ -58,6 +72,15 @@ def recommendation_for_category(category: str) -> str:
         ),
         "JAX-WS Removal": (
             "Add explicit JAX-WS dependencies or replace legacy SOAP stack components where needed."
+        ),
+        "Activation Removal": (
+            "Add an explicit activation dependency because javax.activation is no longer bundled in newer JDKs."
+        ),
+        "Legacy JSON API": (
+            "Add explicit javax.json dependency first, then evaluate whether migration to jakarta.json is desirable."
+        ),
+        "Reflection Encapsulation Risks": (
+            "Review reflective access patterns because Java 17+ strong encapsulation can require refactoring or --add-opens."
         ),
         "Internal JDK APIs": (
             "Replace internal JDK API usage with supported public alternatives as these are high-risk on newer Java versions."
