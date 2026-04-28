@@ -26,6 +26,17 @@ from javamigrator.analysis.generators.python_generator import generate_python_pr
 from javamigrator.analysis.generators.rust_generator import generate_rust_project
 from javamigrator.analysis.go_scaffolder import discover_java_endpoints, generate_go_project
 from javamigrator.analysis.intelligence import generate_architecture_insights
+from javamigrator.analysis.architecture_mapper import (
+    build_architecture_map,
+    write_architecture_json,
+    write_architecture_markdown,
+    write_architecture_mermaid,
+)
+from javamigrator.analysis.architecture_overview import (
+    build_architecture_overview,
+    write_architecture_overview_markdown,
+    write_architecture_overview_mermaid,
+)
 from javamigrator.analysis.migration_strategy import MigrationStrategy, build_migration_strategy
 from javamigrator.analysis.model_builder import build_project_model
 from javamigrator.analysis.pom_autofix import apply_pom_autofix
@@ -634,6 +645,48 @@ def generate_go(
     typer.echo(f"  - {generated_path / 'cmd' / 'app' / 'main.go'}")
     typer.echo(f"  - {generated_path / 'internal' / 'handlers' / 'handlers.go'}")
     typer.echo(f"  - {generated_path / 'routes.md'}")
+
+
+@app.command("map-architecture")
+def map_architecture(
+    project_path: str = typer.Argument(".", help="Path to the Java project"),
+) -> None:
+    """Analyze a Java project and generate static architecture mapping artifacts."""
+
+    typer.echo("Building architecture map...")
+    architecture_map = build_architecture_map(project_path)
+    architecture_overview = build_architecture_overview(project_path, architecture_map)
+
+    output_dir = Path("output")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    overview_dir = output_dir / "architecture"
+    overview_dir.mkdir(parents=True, exist_ok=True)
+
+    markdown_path = output_dir / "architecture_map.md"
+    json_path = output_dir / "architecture_graph.json"
+    mermaid_path = output_dir / "architecture_graph.mmd"
+    overview_markdown_path = overview_dir / "architecture_overview.md"
+    overview_mermaid_path = overview_dir / "architecture_overview.mmd"
+
+    written_markdown_path = write_architecture_markdown(architecture_map, markdown_path)
+    written_json_path = write_architecture_json(architecture_map, json_path)
+    written_mermaid_path = write_architecture_mermaid(architecture_map, mermaid_path)
+    written_overview_mermaid_path = write_architecture_overview_mermaid(
+        architecture_overview,
+        overview_mermaid_path,
+    )
+    written_overview_markdown_path = write_architecture_overview_markdown(
+        architecture_overview,
+        overview_markdown_path,
+    )
+
+    typer.echo(f"Nodes: {len(architecture_map.nodes)}")
+    typer.echo(f"Edges: {len(architecture_map.edges)}")
+    typer.echo(f"Wrote: {written_markdown_path}")
+    typer.echo(f"Wrote: {written_json_path}")
+    typer.echo(f"Wrote: {written_mermaid_path}")
+    typer.echo(f"Wrote: {written_overview_mermaid_path}")
+    typer.echo(f"Wrote: {written_overview_markdown_path}")
 
 
 @app.command()
